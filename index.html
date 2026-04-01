@@ -1,10 +1,64 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Website Pertama Ran</title>
+  <title>Website Ran</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: white;
+      text-align: center;
+    }
+    .container {
+      padding: 50px;
+    }
+    h1 {
+      font-size: 40px;
+    }
+    p {
+      font-size: 18px;
+    }
+    .card {
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      margin: 20px;
+      border-radius: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background: #00c6ff;
+      color: black;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-  <h1>Hello 👋</h1>
-  <p>Ini website saya dari HP!</p>
+
+<div class="container">
+  <h1>Halo, Saya Ran 👋</h1>
+  <p>Ini website pertama saya dari HP pakai GitHub</p>
+
+  <div class="card">
+    <h2>Project Saya</h2>
+    <p>ESP32 + IoT + Dashboard</p>
+  </div>
+
+  <div class="card">
+    <h2>Status</h2>
+    <p id="status">Loading...</p>
+    <button onclick="ubahText()">Klik Saya</button>
+  </div>
+</div>
+
+<script>
+function ubahText() {
+  document.getElementById("status").innerHTML = "Website aktif 🔥";
+}
+</script>
+
 </body>
 </html>

@@ -3,51 +3,72 @@
 <head>
   <title>Ran Super App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: #0f172a;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
       color: white;
     }
 
     .page {
       display: none;
       padding: 20px;
-      padding-bottom: 80px;
+      padding-bottom: 90px;
+      animation: fade 0.3s ease;
     }
 
     .active {
       display: block;
     }
 
+    @keyframes fade {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
     h1 {
       text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(15px);
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     }
 
     input, textarea {
-      width: 90%;
-      padding: 10px;
-      margin: 5px;
+      width: 100%;
+      padding: 12px;
       border-radius: 10px;
       border: none;
+      margin-top: 10px;
+      outline: none;
     }
 
     button {
-      padding: 10px;
+      padding: 10px 15px;
       border: none;
       border-radius: 10px;
-      background: #38bdf8;
-      margin: 5px;
+      background: linear-gradient(45deg, #38bdf8, #0ea5e9);
+      color: white;
+      margin-top: 10px;
+      font-weight: bold;
     }
 
     .task {
-      background: #1e293b;
-      margin: 10px;
-      padding: 10px;
-      border-radius: 10px;
       display: flex;
       justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.3);
     }
 
     .done {
@@ -59,20 +80,32 @@
       position: fixed;
       bottom: 0;
       width: 100%;
-      background: #020617;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(15px);
       display: flex;
       justify-content: space-around;
       padding: 10px 0;
+      border-top: 1px solid rgba(255,255,255,0.1);
     }
 
     .navbar button {
       background: none;
+      font-size: 18px;
       color: white;
-      font-size: 14px;
     }
 
     textarea {
       height: 150px;
+    }
+
+    .time-box {
+      font-size: 40px;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .calc-buttons button {
+      width: 22%;
     }
   </style>
 </head>
@@ -80,41 +113,53 @@
 
 <!-- TO DO -->
 <div id="todo" class="page active">
-  <h1>To-Do</h1>
-  <input id="task" placeholder="Tambah tugas...">
-  <button onclick="tambah()">Tambah</button>
+  <h1>📝 To-Do</h1>
+  <div class="card">
+    <input id="task" placeholder="Tambah tugas...">
+    <button onclick="tambah()">Tambah</button>
+  </div>
   <div id="list"></div>
 </div>
 
 <!-- TIMER -->
 <div id="timer" class="page">
-  <h1>Pomodoro ⏱️</h1>
-  <h2 id="time">25:00</h2>
-  <button onclick="start()">Start</button>
+  <h1>⏱️ Pomodoro</h1>
+  <div class="card">
+    <div class="time-box" id="time">25:00</div>
+    <button onclick="start()">Start</button>
+  </div>
 </div>
 
 <!-- NOTES -->
 <div id="notes" class="page">
-  <h1>Catatan</h1>
-  <textarea id="note" placeholder="Tulis sesuatu..."></textarea>
+  <h1>📒 Catatan</h1>
+  <div class="card">
+    <textarea id="note" placeholder="Tulis sesuatu..."></textarea>
+  </div>
 </div>
 
 <!-- CALCULATOR -->
 <div id="calc" class="page">
-  <h1>Kalkulator</h1>
-  <input id="a" type="number">
-  <input id="b" type="number"><br>
-  <button onclick="hitung('+')">+</button>
-  <button onclick="hitung('-')">-</button>
-  <button onclick="hitung('*')">*</button>
-  <button onclick="hitung('/')">/</button>
-  <h3 id="hasil"></h3>
+  <h1>🧮 Kalkulator</h1>
+  <div class="card">
+    <input id="a" type="number">
+    <input id="b" type="number">
+    <div class="calc-buttons">
+      <button onclick="hitung('+')">+</button>
+      <button onclick="hitung('-')">-</button>
+      <button onclick="hitung('*')">*</button>
+      <button onclick="hitung('/')">/</button>
+    </div>
+    <h2 id="hasil"></h2>
+  </div>
 </div>
 
 <!-- CLOCK -->
 <div id="clock" class="page">
-  <h1>Jam Sekarang</h1>
-  <h2 id="jam"></h2>
+  <h1>🕒 Jam</h1>
+  <div class="card">
+    <div class="time-box" id="jam"></div>
+  </div>
 </div>
 
 <!-- NAVBAR -->
@@ -143,7 +188,7 @@ function render() {
         <span onclick="toggle(${i})" class="${item.done ? 'done' : ''}">
           ${item.text}
         </span>
-        <button onclick="hapus(${i})">X</button>
+        <button onclick="hapus(${i})">✕</button>
       </div>
     `;
   });
@@ -226,4 +271,4 @@ setInterval(() => {
 </script>
 
 </body>
-</html>
+    </html>

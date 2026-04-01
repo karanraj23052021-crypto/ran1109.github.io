@@ -1,63 +1,110 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Website Ran</title>
+  <title>To-Do Ran</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      margin: 0;
       font-family: Arial;
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      background: #121212;
       color: white;
       text-align: center;
+      margin: 0;
     }
     .container {
-      padding: 50px;
-    }
-    h1 {
-      font-size: 40px;
-    }
-    p {
-      font-size: 18px;
-    }
-    .card {
-      background: rgba(255,255,255,0.1);
       padding: 20px;
-      margin: 20px;
-      border-radius: 10px;
+    }
+    input {
+      padding: 10px;
+      width: 65%;
+      border-radius: 5px;
+      border: none;
     }
     button {
-      padding: 10px 20px;
+      padding: 10px;
       border: none;
-      border-radius: 5px;
       background: #00c6ff;
-      color: black;
+      border-radius: 5px;
       font-weight: bold;
+    }
+    li {
+      background: #1f1f1f;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .done {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+    .hapus {
+      background: red;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>Halo, Saya Ran 👋</h1>
-  <p>Ini website pertama saya dari HP pakai GitHub</p>
+  <h1>To-Do List Ran 📝</h1>
 
-  <div class="card">
-    <h2>Project Saya</h2>
-    <p>ESP32 + IoT + Dashboard</p>
-  </div>
+  <input id="task" placeholder="Tambah tugas...">
+  <button onclick="tambah()">Tambah</button>
 
-  <div class="card">
-    <h2>Status</h2>
-    <p id="status">Loading...</p>
-    <button onclick="ubahText()">Klik Saya</button>
-  </div>
+  <ul id="list"></ul>
 </div>
 
 <script>
-function ubahText() {
-  document.getElementById("status").innerHTML = "Website aktif 🔥";
+let data = JSON.parse(localStorage.getItem("tasks")) || [];
+
+function render() {
+  let html = "";
+  data.forEach((item, i) => {
+    html += `
+      <li>
+        <span onclick="toggle(${i})" class="${item.done ? 'done' : ''}">
+          ${item.text}
+        </span>
+        <button class="hapus" onclick="hapus(${i})">X</button>
+      </li>
+    `;
+  });
+  document.getElementById("list").innerHTML = html;
 }
+
+function tambah() {
+  let task = document.getElementById("task").value;
+  if (task.trim() !== "") {
+    data.push({ text: task, done: false });
+    simpan();
+    document.getElementById("task").value = "";
+    render();
+  }
+}
+
+function toggle(i) {
+  data[i].done = !data[i].done;
+  simpan();
+  render();
+}
+
+function hapus(i) {
+  data.splice(i, 1);
+  simpan();
+  render();
+}
+
+function simpan() {
+  localStorage.setItem("tasks", JSON.stringify(data));
+}
+
+render();
 </script>
 
 </body>

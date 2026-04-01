@@ -4,6 +4,10 @@
   <title>Ran Super App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f172a">
+
   <style>
     :root {
       --bg: #0f172a;
@@ -83,6 +87,7 @@
       border: none;
       background: #38bdf8;
       margin-top: 5px;
+      color: white;
     }
 
     .task {
@@ -128,13 +133,15 @@
 </head>
 <body>
 
+<!-- SPLASH -->
 <div id="splash">🚀 Ran App</div>
 
+<!-- DARK MODE -->
 <button class="toggle" onclick="mode()">🌙</button>
 
 <!-- TO DO -->
 <div id="todo" class="page active">
-  <h1>To-Do</h1>
+  <h1>📝 To-Do</h1>
   <div class="card">
     <input id="task" placeholder="Tambah tugas...">
     <button onclick="tambah()">Tambah</button>
@@ -144,15 +151,15 @@
 
 <!-- NOTES -->
 <div id="notes" class="page">
-  <h1>Notes</h1>
+  <h1>📒 Notes</h1>
   <div class="card">
-    <textarea id="note"></textarea>
+    <textarea id="note" placeholder="Tulis sesuatu..."></textarea>
   </div>
 </div>
 
 <!-- CLOCK -->
 <div id="clock" class="page">
-  <h1>Jam</h1>
+  <h1>🕒 Jam</h1>
   <div class="card">
     <h2 id="jam"></h2>
   </div>
@@ -194,11 +201,12 @@ function render() {
 }
 
 function tambah(){
-  let t = task.value;
+  let t = document.getElementById("task").value;
   if(t){
     data.push({text:t,done:false});
     localStorage.setItem("tasks",JSON.stringify(data));
     render();
+    document.getElementById("task").value="";
   }
 }
 
@@ -217,14 +225,20 @@ function hapus(i){
 render();
 
 /* NOTES */
+let note = document.getElementById("note");
 note.value = localStorage.getItem("note") || "";
 note.oninput = () => localStorage.setItem("note", note.value);
 
 /* CLOCK */
 setInterval(()=>{
-  jam.innerText = new Date().toLocaleTimeString();
+  document.getElementById("jam").innerText = new Date().toLocaleTimeString();
 },1000);
+
+/* SERVICE WORKER */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
 </script>
 
 </body>
-</html>
+  </html>

@@ -1,91 +1,149 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>To-Do Ran</title>
+  <title>To-Do Ran Pro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      font-family: Arial;
-      background: #121212;
-      color: white;
-      text-align: center;
       margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: white;
     }
+
     .container {
+      max-width: 500px;
+      margin: auto;
       padding: 20px;
     }
+
+    h1 {
+      text-align: center;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      padding: 15px;
+      border-radius: 15px;
+      margin-bottom: 15px;
+    }
+
     input {
       padding: 10px;
       width: 65%;
-      border-radius: 5px;
+      border-radius: 8px;
       border: none;
     }
+
     button {
       padding: 10px;
       border: none;
-      background: #00c6ff;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-    li {
-      background: #1f1f1f;
-      margin: 10px;
-      padding: 10px;
       border-radius: 8px;
+      background: #00c6ff;
+      font-weight: bold;
+      margin-left: 5px;
+    }
+
+    .task {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background: rgba(0,0,0,0.3);
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 10px;
     }
+
     .done {
       text-decoration: line-through;
       opacity: 0.6;
     }
-    .hapus {
-      background: red;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 5px;
+
+    .actions button {
+      margin-left: 5px;
+      padding: 5px 8px;
+      font-size: 12px;
+    }
+
+    .important {
+      border-left: 5px solid gold;
+    }
+
+    .search {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    small {
+      opacity: 0.7;
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>To-Do List Ran 📝</h1>
+  <h1>To-Do Ran Pro 🚀</h1>
 
-  <input id="task" placeholder="Tambah tugas...">
-  <button onclick="tambah()">Tambah</button>
+  <div class="card">
+    <input id="task" placeholder="Tambah tugas...">
+    <button onclick="tambah()">Tambah</button>
+  </div>
 
-  <ul id="list"></ul>
+  <div class="card">
+    <input id="search" class="search" placeholder="Cari tugas..." oninput="render()">
+  </div>
+
+  <div id="list"></div>
 </div>
 
 <script>
 let data = JSON.parse(localStorage.getItem("tasks")) || [];
 
-function render() {
-  let html = "";
-  data.forEach((item, i) => {
-    html += `
-      <li>
-        <span onclick="toggle(${i})" class="${item.done ? 'done' : ''}">
-          ${item.text}
-        </span>
-        <button class="hapus" onclick="hapus(${i})">X</button>
-      </li>
-    `;
-  });
-  document.getElementById("list").innerHTML = html;
+function simpan() {
+  localStorage.setItem("tasks", JSON.stringify(data));
 }
 
 function tambah() {
-  let task = document.getElementById("task").value;
-  if (task.trim() !== "") {
-    data.push({ text: task, done: false });
-    simpan();
-    document.getElementById("task").value = "";
-    render();
-  }
+  let text = document.getElementById("task").value;
+  if (text.trim() === "") return;
+
+  data.push({
+    text: text,
+    done: false,
+    important: false,
+    date: new Date().toLocaleString()
+  });
+
+  document.getElementById("task").value = "";
+  simpan();
+  render();
+}
+
+function render() {
+  let keyword = document.getElementById("search").value.toLowerCase();
+  let html = "";
+
+  data.forEach((item, i) => {
+    if (!item.text.toLowerCase().includes(keyword)) return;
+
+    html += `
+      <div class="task ${item.important ? 'important' : ''}">
+        <div onclick="toggle(${i})">
+          <div class="${item.done ? 'done' : ''}">${item.text}</div>
+          <small>${item.date}</small>
+        </div>
+
+        <div class="actions">
+          <button onclick="important(${i})">⭐</button>
+          <button onclick="edit(${i})">✏️</button>
+          <button onclick="hapus(${i})">🗑</button>
+        </div>
+      </div>
+    `;
+  });
+
+  document.getElementById("list").innerHTML = html;
 }
 
 function toggle(i) {
@@ -100,8 +158,19 @@ function hapus(i) {
   render();
 }
 
-function simpan() {
-  localStorage.setItem("tasks", JSON.stringify(data));
+function edit(i) {
+  let baru = prompt("Edit tugas:", data[i].text);
+  if (baru) {
+    data[i].text = baru;
+    simpan();
+    render();
+  }
+}
+
+function important(i) {
+  data[i].important = !data[i].important;
+  simpan();
+  render();
 }
 
 render();

@@ -1,179 +1,228 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>To-Do List</title>
+  <title>Ran Super App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      background: #0f172a;
       color: white;
     }
 
-    .container {
-      max-width: 500px;
-      margin: auto;
+    .page {
+      display: none;
       padding: 20px;
+      padding-bottom: 80px;
+    }
+
+    .active {
+      display: block;
     }
 
     h1 {
       text-align: center;
     }
 
-    .card {
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(10px);
-      padding: 15px;
-      border-radius: 15px;
-      margin-bottom: 15px;
-    }
-
-    input {
+    input, textarea {
+      width: 90%;
       padding: 10px;
-      width: 65%;
-      border-radius: 8px;
+      margin: 5px;
+      border-radius: 10px;
       border: none;
     }
 
     button {
       padding: 10px;
       border: none;
-      border-radius: 8px;
-      background: #00c6ff;
-      font-weight: bold;
-      margin-left: 5px;
+      border-radius: 10px;
+      background: #38bdf8;
+      margin: 5px;
     }
 
     .task {
+      background: #1e293b;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 10px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      background: rgba(0,0,0,0.3);
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 10px;
     }
 
     .done {
       text-decoration: line-through;
-      opacity: 0.6;
+      opacity: 0.5;
     }
 
-    .actions button {
-      margin-left: 5px;
-      padding: 5px 8px;
-      font-size: 12px;
-    }
-
-    .important {
-      border-left: 5px solid gold;
-    }
-
-    .search {
+    .navbar {
+      position: fixed;
+      bottom: 0;
       width: 100%;
-      margin-bottom: 10px;
+      background: #020617;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
     }
 
-    small {
-      opacity: 0.7;
+    .navbar button {
+      background: none;
+      color: white;
+      font-size: 14px;
+    }
+
+    textarea {
+      height: 150px;
     }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h1>To-Do List</h1>
-
-  <div class="card">
-    <input id="task" placeholder="Tambah tugas...">
-    <button onclick="tambah()">Tambah</button>
-  </div>
-
-  <div class="card">
-    <input id="search" class="search" placeholder="Cari tugas..." oninput="render()">
-  </div>
-
+<!-- TO DO -->
+<div id="todo" class="page active">
+  <h1>To-Do</h1>
+  <input id="task" placeholder="Tambah tugas...">
+  <button onclick="tambah()">Tambah</button>
   <div id="list"></div>
 </div>
 
+<!-- TIMER -->
+<div id="timer" class="page">
+  <h1>Pomodoro ⏱️</h1>
+  <h2 id="time">25:00</h2>
+  <button onclick="start()">Start</button>
+</div>
+
+<!-- NOTES -->
+<div id="notes" class="page">
+  <h1>Catatan</h1>
+  <textarea id="note" placeholder="Tulis sesuatu..."></textarea>
+</div>
+
+<!-- CALCULATOR -->
+<div id="calc" class="page">
+  <h1>Kalkulator</h1>
+  <input id="a" type="number">
+  <input id="b" type="number"><br>
+  <button onclick="hitung('+')">+</button>
+  <button onclick="hitung('-')">-</button>
+  <button onclick="hitung('*')">*</button>
+  <button onclick="hitung('/')">/</button>
+  <h3 id="hasil"></h3>
+</div>
+
+<!-- CLOCK -->
+<div id="clock" class="page">
+  <h1>Jam Sekarang</h1>
+  <h2 id="jam"></h2>
+</div>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <button onclick="show('todo')">📝</button>
+  <button onclick="show('timer')">⏱️</button>
+  <button onclick="show('notes')">📒</button>
+  <button onclick="show('calc')">🧮</button>
+  <button onclick="show('clock')">🕒</button>
+</div>
+
 <script>
+function show(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(page).classList.add('active');
+}
+
+/* TO DO */
 let data = JSON.parse(localStorage.getItem("tasks")) || [];
 
-function simpan() {
-  localStorage.setItem("tasks", JSON.stringify(data));
+function render() {
+  let html = "";
+  data.forEach((item, i) => {
+    html += `
+      <div class="task">
+        <span onclick="toggle(${i})" class="${item.done ? 'done' : ''}">
+          ${item.text}
+        </span>
+        <button onclick="hapus(${i})">X</button>
+      </div>
+    `;
+  });
+  document.getElementById("list").innerHTML = html;
 }
 
 function tambah() {
   let text = document.getElementById("task").value;
-  if (text.trim() === "") return;
-
-  data.push({
-    text: text,
-    done: false,
-    important: false,
-    date: new Date().toLocaleString()
-  });
-
-  document.getElementById("task").value = "";
-  simpan();
-  render();
-}
-
-function render() {
-  let keyword = document.getElementById("search").value.toLowerCase();
-  let html = "";
-
-  data.forEach((item, i) => {
-    if (!item.text.toLowerCase().includes(keyword)) return;
-
-    html += `
-      <div class="task ${item.important ? 'important' : ''}">
-        <div onclick="toggle(${i})">
-          <div class="${item.done ? 'done' : ''}">${item.text}</div>
-          <small>${item.date}</small>
-        </div>
-
-        <div class="actions">
-          <button onclick="important(${i})">⭐</button>
-          <button onclick="edit(${i})">✏️</button>
-          <button onclick="hapus(${i})">🗑</button>
-        </div>
-      </div>
-    `;
-  });
-
-  document.getElementById("list").innerHTML = html;
+  if (text) {
+    data.push({text, done:false});
+    localStorage.setItem("tasks", JSON.stringify(data));
+    render();
+  }
 }
 
 function toggle(i) {
   data[i].done = !data[i].done;
-  simpan();
+  localStorage.setItem("tasks", JSON.stringify(data));
   render();
 }
 
 function hapus(i) {
   data.splice(i, 1);
-  simpan();
-  render();
-}
-
-function edit(i) {
-  let baru = prompt("Edit tugas:", data[i].text);
-  if (baru) {
-    data[i].text = baru;
-    simpan();
-    render();
-  }
-}
-
-function important(i) {
-  data[i].important = !data[i].important;
-  simpan();
+  localStorage.setItem("tasks", JSON.stringify(data));
   render();
 }
 
 render();
+
+/* TIMER */
+let detik = 1500;
+let jalan = false;
+
+function start() {
+  if (jalan) return;
+  jalan = true;
+
+  let interval = setInterval(() => {
+    if (detik <= 0) {
+      clearInterval(interval);
+      jalan = false;
+      alert("Selesai!");
+    }
+    detik--;
+    let m = Math.floor(detik / 60);
+    let s = detik % 60;
+    document.getElementById("time").innerText =
+      `${m}:${s < 10 ? '0' : ''}${s}`;
+  }, 1000);
+}
+
+/* NOTES */
+let note = document.getElementById("note");
+note.value = localStorage.getItem("note") || "";
+
+note.addEventListener("input", () => {
+  localStorage.setItem("note", note.value);
+});
+
+/* CALC */
+function hitung(op) {
+  let a = Number(document.getElementById("a").value);
+  let b = Number(document.getElementById("b").value);
+  let hasil;
+
+  if (op === '+') hasil = a + b;
+  if (op === '-') hasil = a - b;
+  if (op === '*') hasil = a * b;
+  if (op === '/') hasil = a / b;
+
+  document.getElementById("hasil").innerText = hasil;
+}
+
+/* CLOCK */
+setInterval(() => {
+  let now = new Date();
+  document.getElementById("jam").innerText =
+    now.toLocaleTimeString();
+}, 1000);
 </script>
 
 </body>

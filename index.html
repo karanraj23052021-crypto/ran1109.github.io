@@ -3,377 +3,275 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ran Super App</title>
-  
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0f172a">
-  
+  <title>Ran Super App V2</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    /* RESET & DASAR */
+    /* CSS Variables untuk Custom Theme */
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --primary: #38bdf8; /* Default Blue */
+      --text: #f8fafc;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #0f172a;
-      color: #f8fafc;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; transition: background 0.3s; }
     
-    /* CONTAINER UTAMA (Mirip layar HP di tengah desktop) */
-    .app-container {
-      width: 100%;
-      max-width: 480px;
-      position: relative;
-      padding: 24px 24px 100px 24px; /* Padding bawah untuk area taskbar */
-    }
-
-    /* TYPOGRAPHY */
-    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 16px; color: #38bdf8; }
-    h3 { font-size: 1.1rem; font-weight: 500; margin-top: 16px; color: #cbd5e1; }
-
-    /* HALAMAN */
+    .app-container { width: 100%; max-width: 480px; padding: 24px 24px 100px 24px; }
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 16px; color: var(--primary); }
+    
     .page { display: none; animation: fadeIn 0.3s ease; }
     .active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .center { text-align: center; }
 
-    /* ELEMEN UI (Kartu, Input, Tombol) */
-    .card {
-      background: rgba(30, 41, 59, 0.7);
-      backdrop-filter: blur(10px);
-      padding: 16px;
-      border-radius: 16px;
-      margin-bottom: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      transition: 0.2s ease;
-    }
-    .card a { color: #38bdf8; text-decoration: none; word-break: break-all; }
+    .card { background: var(--card-bg); backdrop-filter: blur(10px); padding: 16px; border-radius: 16px; margin-bottom: 12px; border: 1px solid rgba(255, 255, 255, 0.05); }
     
-    input, textarea, select {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(15, 23, 42, 0.6);
-      color: white;
-      font-family: inherit;
-      font-size: 0.95rem;
-      margin-bottom: 12px;
-      outline: none;
-      transition: 0.3s ease;
-    }
-    input:focus, textarea:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
+    input, textarea, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.6); color: white; margin-bottom: 12px; outline: none; }
+    input:focus { border-color: var(--primary); }
     
-    button {
-      padding: 14px 20px;
-      border: none;
-      border-radius: 12px;
-      background: #38bdf8;
-      color: #0f172a;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      width: 100%;
-      transition: 0.2s ease;
-      font-family: inherit;
-    }
-    button:hover { background: #0ea5e9; transform: scale(0.98); }
-    button:active { transform: scale(0.95); }
+    button { padding: 14px 20px; border: none; border-radius: 12px; background: var(--primary); color: #0f172a; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; }
+    button:hover { opacity: 0.9; transform: scale(0.98); }
 
-    /* KHUSUS TO-DO */
-    .todo-item {
-      display: flex;
-      align-items: center;
-      padding: 14px;
-      background: rgba(30, 41, 59, 0.5);
-      border-radius: 12px;
-      margin-bottom: 8px;
-      cursor: pointer;
-      border: 1px solid rgba(255,255,255,0.05);
-      transition: 0.2s;
-    }
-    .todo-item:hover { background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.3); }
-    .todo-item.done { text-decoration: line-through; opacity: 0.4; border-color: transparent; }
+    /* Drag & Drop Styles */
+    .todo-item { display: flex; align-items: center; padding: 14px; background: rgba(30, 41, 59, 0.5); border-radius: 12px; margin-bottom: 8px; cursor: grab; border: 1px solid rgba(255,255,255,0.05); }
+    .todo-item.dragging { opacity: 0.5; border: 2px dashed var(--primary); }
+    .todo-item.done { text-decoration: line-through; opacity: 0.4; }
 
-    /* TASKBAR / NAVBAR BAWAH */
-    .nav {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 40px);
-      max-width: 440px;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-      padding: 10px;
-      border-radius: 24px;
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-    /* Sembunyikan scrollbar di taskbar */
+    /* Chat AI */
+    .chat-box { height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .msg { padding: 8px 12px; border-radius: 12px; max-width: 80%; font-size: 0.9rem; }
+    .msg.user { background: var(--primary); color: #000; align-self: flex-end; }
+    .msg.bot { background: rgba(255,255,255,0.1); align-self: flex-start; }
+
+    /* Taskbar */
+    .nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 440px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(15px); padding: 10px; border-radius: 24px; display: flex; gap: 8px; overflow-x: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100;}
     .nav::-webkit-scrollbar { display: none; }
-    
-    .nav button {
-      flex: 0 0 auto;
-      width: 50px;
-      height: 50px;
-      padding: 0;
-      background: transparent;
-      color: white;
-      font-size: 1.3rem;
-      border-radius: 16px;
-    }
-    .nav button:hover { background: rgba(255, 255, 255, 0.1); }
-    .nav button.active-btn {
-      background: rgba(56, 189, 248, 0.2);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      transform: translateY(-2px);
-    }
+    .nav button { flex: 0 0 auto; width: 50px; height: 50px; background: transparent; color: white; font-size: 1.3rem; }
+    .nav button.active-btn { background: rgba(255,255,255,0.1); border: 1px solid var(--primary); }
+
+    /* Login Overlay */
+    #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg-color); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
   </style>
 </head>
-
 <body>
+
+<div id="loginOverlay">
+  <h1 style="color: var(--primary); margin-bottom: 20px;">Ran Super App</h1>
+  <div class="card" style="width: 100%; max-width: 300px;">
+    <p style="text-align:center; margin-bottom: 15px;">Silakan masuk (PIN Default: 1234)</p>
+    <input type="password" id="loginPin" placeholder="Masukkan PIN">
+    <button onclick="doLogin()">Masuk</button>
+  </div>
+</div>
 
 <div class="app-container">
 
   <div id="todo" class="page active">
     <h2>📝 To-Do List</h2>
-    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-      <input id="task" placeholder="Tulis tugas baru..." style="margin-bottom: 0;">
-      <button onclick="add()" style="width: auto;">Tambah</button>
+    <div style="display: flex; gap: 8px;">
+      <input id="task" placeholder="Tulis tugas baru...">
+      <button onclick="add()" style="width: auto;">+</button>
     </div>
     <div id="list"></div>
-    <h3 style="text-align: right; font-size: 0.9rem;">Selesai: <span id="stat" style="color:#38bdf8"></span></h3>
   </div>
 
-  <div id="cal" class="page">
-    <h2>📅 Kalender</h2>
+  <div id="stats" class="page">
+    <h2>📊 Dashboard</h2>
     <div class="card">
-      <input type="date" id="date">
-      <input id="evText" placeholder="Nama Kegiatan">
-      <button onclick="saveEvent()">Simpan Kegiatan</button>
+      <canvas id="myChart"></canvas>
     </div>
-    <h3>Daftar Kegiatan</h3>
-    <div id="eventsList"></div>
-  </div>
-
-  <div id="rem" class="page">
-    <h2>⏰ Reminder</h2>
-    <div class="card center">
-      <p style="margin-bottom: 12px; color: #94a3b8; font-size: 0.9rem;">Set waktu untuk mendapatkan notifikasi</p>
-      <input type="time" id="remTime">
-      <button onclick="setRem()">Aktifkan Reminder</button>
+    <div class="card" style="display: flex; justify-content: space-between;">
+      <span>Total Tugas Selesai:</span>
+      <strong id="totalDone" style="color: var(--primary);">0</strong>
     </div>
   </div>
 
-  <div id="music" class="page center">
-    <h2>🎧 Focus Sound</h2>
-    <p style="margin-bottom: 20px; color: #94a3b8; font-size: 0.9rem;">Suara untuk bantu kamu lebih fokus.</p>
+  <div id="habit" class="page">
+    <h2>🔥 Habit Tracker</h2>
+    <div style="display: flex; gap: 8px;">
+      <input id="habitInput" placeholder="Kebiasaan baru...">
+      <button onclick="addHabit()" style="width: auto;">+</button>
+    </div>
+    <div id="habitList"></div>
+  </div>
+
+  <div id="ai" class="page">
+    <h2>🤖 AI Assistant</h2>
     <div class="card">
-      <button onclick="lofi()" style="margin-bottom: 12px;">🎧 Play Lofi</button>
-      <button onclick="rain()">🌧️ Play Rain</button>
-    </div>
-    <audio id="audio" loop></audio>
-  </div>
-
-  <div id="rand" class="page center">
-    <h2>🎲 Random Picker</h2>
-    <p style="margin-bottom: 16px; color: #94a3b8; font-size: 0.9rem;">Bantu kamu mengambil keputusan.</p>
-    <input id="opt" placeholder="Contoh: Makan Nasi, Makan Mie">
-    <button onclick="pick()">Pilih Acak!</button>
-    <div class="card" style="margin-top: 20px; min-height: 80px; display:flex; align-items:center; justify-content:center;">
-      <h3 id="res" style="margin: 0; font-size: 1.3rem; color: #38bdf8;">- Hasil -</h3>
+      <div class="chat-box" id="chatBox">
+        <div class="msg bot">Halo! Ada yang bisa Ran AI bantu?</div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <input id="aiInput" placeholder="Tanya sesuatu..." onkeypress="if(event.key==='Enter') sendChat()">
+        <button onclick="sendChat()" style="width: auto;">Kirim</button>
+      </div>
     </div>
   </div>
 
-  <div id="book" class="page">
-    <h2>📌 Bookmark</h2>
-    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-      <input id="linkUrl" placeholder="https://..." style="margin-bottom: 0;">
-      <button onclick="saveLink()" style="width: auto;">Simpan</button>
-    </div>
-    <div id="linksList"></div>
-  </div>
-
-  <div id="file" class="page">
-    <h2>📁 File</h2>
-    <div class="card center">
-      <input type="file" onchange="saveFile(event)" style="background: transparent; border: 1px dashed rgba(255,255,255,0.2);">
-      <p id="fileName" style="margin-top: 10px; color: #38bdf8; font-size: 0.9rem; word-break: break-all;"></p>
-    </div>
-  </div>
-
-  <div id="lock" class="page">
-    <h2>🔐 Secret Notes</h2>
+  <div id="settings" class="page">
+    <h2>⚙️ Settings</h2>
     <div class="card">
-      <input type="password" id="pass" placeholder="Masukkan PIN (1234)">
-      <button onclick="unlock()">Buka Brankas</button>
+      <h3>Pilih Tema</h3>
+      <div style="display:flex; gap:10px; margin-top:10px;">
+        <button style="background:#38bdf8; color:white;" onclick="setTheme('#38bdf8')">Blue</button>
+        <button style="background:#a855f7; color:white;" onclick="setTheme('#a855f7')">Purple</button>
+        <button style="background:#22c55e; color:white;" onclick="setTheme('#22c55e')">Green</button>
+      </div>
     </div>
-    <textarea id="secret" style="display:none; height: 200px; margin-top: 16px;" placeholder="Tulis rahasiamu di sini..."></textarea>
+    <div class="card">
+      <h3>Data</h3>
+      <button onclick="exportData()" style="background: transparent; border: 1px solid var(--primary); color: var(--primary);">📥 Export Data (JSON)</button>
+    </div>
   </div>
 
 </div>
 
 <div class="nav" id="taskbar">
   <button class="nav-btn active-btn" onclick="show('todo', this)">📝</button>
-  <button class="nav-btn" onclick="show('cal', this)">📅</button>
-  <button class="nav-btn" onclick="show('rem', this)">⏰</button>
-  <button class="nav-btn" onclick="show('music', this)">🎧</button>
-  <button class="nav-btn" onclick="show('rand', this)">🎲</button>
-  <button class="nav-btn" onclick="show('book', this)">📌</button>
-  <button class="nav-btn" onclick="show('file', this)">📁</button>
-  <button class="nav-btn" onclick="show('lock', this)">🔐</button>
+  <button class="nav-btn" onclick="show('stats', this)">📊</button>
+  <button class="nav-btn" onclick="show('habit', this)">🔥</button>
+  <button class="nav-btn" onclick="show('ai', this)">🤖</button>
+  <button class="nav-btn" onclick="show('settings', this)">⚙️</button>
 </div>
 
 <script>
-// --- NAV LOGIC ---
+// --- CORE & NAVIGATION ---
 function show(pageId, btnElement) {
-  // Sembunyikan semua halaman
   document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-  // Tampilkan halaman yang dipilih
   document.getElementById(pageId).classList.add('active');
-  
-  // Update tampilan tombol di taskbar
   document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active-btn'));
   if(btnElement) btnElement.classList.add('active-btn');
+  if(pageId === 'stats') updateChart();
 }
 
-// --- TODO LIST ---
-let t = JSON.parse(localStorage.getItem("t")) || [];
-function renderTodo() {
-  let doneCount = t.filter(x => x.done).length;
-  document.getElementById('stat').innerText = doneCount + "/" + t.length;
-  document.getElementById('list').innerHTML = t.map((x, i) => 
-    `<div onclick="tog(${i})" class="todo-item ${x.done ? 'done' : ''}">
-      ${x.done ? '✅' : '⭕'} <span style="margin-left:10px;">${x.text}</span>
-    </div>`
-  ).join("");
-}
-function add() {
-  let taskInput = document.getElementById('task');
-  if(!taskInput.value.trim()) return;
-  t.push({ text: taskInput.value, done: false });
-  localStorage.setItem("t", JSON.stringify(t));
-  taskInput.value = "";
-  renderTodo();
-}
-function tog(i) {
-  t[i].done = !t[i].done;
-  localStorage.setItem("t", JSON.stringify(t));
-  renderTodo();
-}
-renderTodo();
-
-// --- CALENDAR ---
-let ev = JSON.parse(localStorage.getItem("ev")) || [];
-function renderEvents() {
-  document.getElementById('eventsList').innerHTML = ev.map(x => 
-    `<div class="card">
-      <span style="color:#38bdf8; font-size:0.8rem; font-weight:bold;">${x.d}</span><br>
-      ${x.e}
-    </div>`
-  ).join("");
-}
-function saveEvent() {
-  let d = document.getElementById('date').value;
-  let e = document.getElementById('evText').value;
-  if(!d || !e) { alert("Isi tanggal dan kegiatan!"); return; }
-  ev.push({ d, e });
-  localStorage.setItem("ev", JSON.stringify(ev));
-  document.getElementById('date').value = "";
-  document.getElementById('evText').value = "";
-  renderEvents();
-}
-renderEvents();
-
-// --- REMINDER ---
-function setRem() {
-  let timeStr = document.getElementById('remTime').value;
-  if(!timeStr) return alert("Pilih waktu dulu!");
-  Notification.requestPermission().then(p => {
-    if(p === "granted") {
-      alert("Reminder diatur! (Simulasi 5 detik untuk demo)");
-      setTimeout(() => new Notification("⏰ Reminder!", { body: "Waktunya cek aplikasimu!" }), 5000);
-    } else {
-      alert("Izinkan notifikasi di browser dulu ya.");
-    }
-  });
-}
-
-// --- MUSIC ---
-let audio = document.getElementById('audio');
-function lofi() { audio.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"; audio.play(); }
-function rain() { audio.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"; audio.play(); }
-
-// --- RANDOM PICKER ---
-function pick() {
-  let val = document.getElementById('opt').value;
-  if(!val) return;
-  let arr = val.split(",").map(item => item.trim()).filter(item => item);
-  let resText = document.getElementById('res');
-  
-  // Efek loading simpel
-  resText.innerText = "Memilih...";
-  setTimeout(() => {
-    resText.innerText = arr[Math.floor(Math.random() * arr.length)] + " 🎉";
-  }, 500);
-}
-
-// --- BOOKMARK ---
-// Bug fix: ubah nama variabel lokal agar tidak nabrak id="linksList"
-let savedLinks = JSON.parse(localStorage.getItem("l")) || [];
-function renderLinks() {
-  document.getElementById('linksList').innerHTML = savedLinks.map(x => 
-    `<div class="card"><a href="${x}" target="_blank">${x}</a></div>`
-  ).join("");
-}
-function saveLink() {
-  let inputLink = document.getElementById('linkUrl');
-  if(!inputLink.value) return;
-  savedLinks.push(inputLink.value);
-  localStorage.setItem("l", JSON.stringify(savedLinks));
-  inputLink.value = "";
-  renderLinks();
-}
-renderLinks();
-
-// --- FILE ---
-function saveFile(e) {
-  let f = e.target.files[0];
-  if(f) document.getElementById('fileName').innerText = "File terpilih: " + f.name;
-}
-
-// --- LOCK NOTES ---
-function unlock() {
-  let pass = document.getElementById('pass');
-  let secretBox = document.getElementById('secret');
-  if(pass.value === "1234") {
-    secretBox.style.display = "block";
-    pass.style.display = "none";
-    event.target.style.display = "none"; // Sembunyikan tombol setelah terbuka
-    
-    secretBox.value = localStorage.getItem("s") || "";
-    // Save otomatis saat mengetik
-    secretBox.onkeyup = () => localStorage.setItem("s", secretBox.value);
+// --- LOGIN (PSEUDO) ---
+function doLogin() {
+  if(document.getElementById('loginPin').value === '1234') {
+    document.getElementById('loginOverlay').style.display = 'none';
   } else {
-    alert("Password salah bos!");
+    alert("PIN Salah! Coba 1234");
   }
 }
 
-// --- SERVICE WORKER ---
-if("serviceWorker" in navigator) {
-  // Hanya jalan jika ada file sw.js beneran
-  navigator.serviceWorker.register("sw.js").catch(err => console.log("SW blm ada"));
+// --- THEME ---
+function setTheme(color) {
+  document.documentElement.style.setProperty('--primary', color);
+  localStorage.setItem('themeColor', color);
+  if(myChartInstance) updateChart(); // Update warna grafik
+}
+let savedColor = localStorage.getItem('themeColor');
+if(savedColor) setTheme(savedColor);
+
+// --- TODO & DRAG AND DROP ---
+let t = JSON.parse(localStorage.getItem("t")) || [];
+let dragIndex = null;
+
+function renderTodo() {
+  const listDiv = document.getElementById('list');
+  listDiv.innerHTML = '';
+  t.forEach((x, i) => {
+    let div = document.createElement('div');
+    div.className = `todo-item ${x.done ? 'done' : ''}`;
+    div.draggable = true;
+    div.innerHTML = `<span onclick="tog(${i})" style="flex-grow:1;">${x.done ? '✅' : '⭕'} ${x.text}</span> <button onclick="del(${i})" style="width:auto; padding:5px; background:red; color:white;">X</button>`;
+    
+    // Event Drag Drop
+    div.ondragstart = () => { dragIndex = i; div.classList.add('dragging'); };
+    div.ondragend = () => { div.classList.remove('dragging'); };
+    div.ondragover = (e) => { e.preventDefault(); };
+    div.ondrop = () => {
+      let temp = t[dragIndex];
+      t.splice(dragIndex, 1);
+      t.splice(i, 0, temp);
+      saveTodo(); renderTodo();
+    };
+    listDiv.appendChild(div);
+  });
+}
+function add() {
+  let val = document.getElementById('task').value;
+  if(val) { t.push({ text: val, done: false }); saveTodo(); renderTodo(); document.getElementById('task').value = ""; }
+}
+function tog(i) { t[i].done = !t[i].done; saveTodo(); renderTodo(); }
+function del(i) { t.splice(i, 1); saveTodo(); renderTodo(); }
+function saveTodo() { localStorage.setItem("t", JSON.stringify(t)); }
+renderTodo();
+
+// --- DASHBOARD STATS (Chart.js) ---
+let myChartInstance = null;
+function updateChart() {
+  let done = t.filter(x => x.done).length;
+  let pending = t.length - done;
+  document.getElementById('totalDone').innerText = done;
+  
+  let ctx = document.getElementById('myChart').getContext('2d');
+  let color = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+  
+  if(myChartInstance) myChartInstance.destroy();
+  myChartInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Selesai', 'Belum'],
+      datasets: [{ data: [done, pending], backgroundColor: [color, 'rgba(255,255,255,0.1)'], borderWidth: 0 }]
+    },
+    options: { plugins: { legend: { labels: { color: '#fff' } } } }
+  });
+}
+
+// --- HABIT TRACKER ---
+let habits = JSON.parse(localStorage.getItem("habits")) || [];
+function renderHabits() {
+  document.getElementById('habitList').innerHTML = habits.map((h, i) => `
+    <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+      <span>${h.name}</span>
+      <div>
+        <span style="margin-right:10px; color:var(--primary);">🔥 ${h.streak}</span>
+        <button onclick="hitHabit(${i})" style="width:auto; padding:5px 10px;">+1</button>
+      </div>
+    </div>
+  `).join('');
+}
+function addHabit() {
+  let val = document.getElementById('habitInput').value;
+  if(val) { habits.push({ name: val, streak: 0 }); localStorage.setItem("habits", JSON.stringify(habits)); renderHabits(); document.getElementById('habitInput').value=''; }
+}
+function hitHabit(i) { habits[i].streak++; localStorage.setItem("habits", JSON.stringify(habits)); renderHabits(); }
+renderHabits();
+
+// --- AI ASSISTANT (Rule-Based) ---
+function sendChat() {
+  let input = document.getElementById('aiInput');
+  let text = input.value.trim().toLowerCase();
+  if(!text) return;
+  
+  let box = document.getElementById('chatBox');
+  box.innerHTML += `<div class="msg user">${input.value}</div>`;
+  input.value = '';
+  
+  // Fake AI Logic
+  setTimeout(() => {
+    let reply = "Maaf, aku belum ngerti. Coba tanya hal lain!";
+    if(text.includes('halo') || text.includes('hai')) reply = "Halo bos! Ada tugas yang mau diselesaikan hari ini?";
+    else if(text.includes('tugas') || text.includes('todo')) reply = `Kamu punya ${t.filter(x=>!x.done).length} tugas yang belum selesai nih.`;
+    else if(text.includes('siapa')) reply = "Aku Ran AI, asisten virtual di Super App ini!";
+    
+    box.innerHTML += `<div class="msg bot">${reply}</div>`;
+    box.scrollTop = box.scrollHeight; // Auto scroll ke bawah
+  }, 500);
+}
+
+// --- EXPORT DATA ---
+function exportData() {
+  let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ todo: t, habits: habits }));
+  let node = document.createElement('a');
+  node.setAttribute("href", dataStr);
+  node.setAttribute("download", "ran_superapp_data.json");
+  document.body.appendChild(node);
+  node.click();
+  node.remove();
 }
 </script>
-
 </body>
-  </html>
-  
+</html>

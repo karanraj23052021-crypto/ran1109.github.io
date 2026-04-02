@@ -1,229 +1,170 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Ran Super App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ran Super App</title>
 
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
 
-  <style>
-    body {
-      margin:0;
-      font-family:sans-serif;
-      background:#0f172a;
-      color:white;
-    }
-
-    .page {display:none; padding:20px;}
-    .active {display:block;}
-
-    h1 {text-align:center;}
-
-    .card {
-      background:rgba(255,255,255,0.1);
-      padding:15px;
-      border-radius:15px;
-      margin:10px 0;
-    }
-
-    input,textarea {
-      width:100%;
-      padding:10px;
-      border-radius:10px;
-      border:none;
-      margin-top:5px;
-    }
-
-    button {
-      padding:10px;
-      border:none;
-      border-radius:10px;
-      margin-top:5px;
-      background:#38bdf8;
-      color:white;
-    }
-
-    .navbar {
-      position:fixed;
-      bottom:0;
-      width:100%;
-      display:flex;
-      justify-content:space-around;
-      background:#000;
-      padding:10px;
-    }
-
-    .task {
-      display:flex;
-      justify-content:space-between;
-      margin-top:10px;
-    }
-
-    .done {text-decoration:line-through;opacity:0.5;}
-
-    #tapBtn {
-      width:150px;
-      height:150px;
-      font-size:30px;
-      border-radius:50%;
-      margin:20px auto;
-      display:block;
-      background:red;
-    }
-
-    .center {text-align:center;}
-  </style>
+<style>
+body{margin:0;font-family:sans-serif;background:#0f172a;color:white}
+.page{display:none;padding:20px}
+.active{display:block}
+.card{background:rgba(255,255,255,0.1);padding:15px;border-radius:15px;margin:10px 0}
+button{padding:10px;border:none;border-radius:10px;background:#38bdf8;color:white;margin-top:5px}
+input,textarea{width:100%;padding:10px;border-radius:10px;border:none;margin-top:5px}
+.nav{position:fixed;bottom:0;width:100%;display:flex;justify-content:space-around;background:black;padding:10px}
+.center{text-align:center}
+.done{text-decoration:line-through;opacity:0.5}
+</style>
 </head>
+
 <body>
 
-<!-- TO DO -->
+<!-- TODO -->
 <div id="todo" class="page active">
-  <h1>📝 To-Do</h1>
-  <div class="card">
-    <input id="task">
-    <button onclick="add()">Tambah</button>
-  </div>
-  <div id="list"></div>
+<h2>To-Do</h2>
+<input id="task"><button onclick="add()">Tambah</button>
+<div id="list"></div>
+<h3>Statistik: <span id="stat"></span></h3>
 </div>
 
-<!-- NOTES -->
-<div id="notes" class="page">
-  <h1>📒 Notes</h1>
-  <div class="card">
-    <textarea id="note"></textarea>
-  </div>
+<!-- CALENDAR -->
+<div id="cal" class="page">
+<h2>Kalender</h2>
+<input type="date" id="date">
+<input id="event" placeholder="Kegiatan">
+<button onclick="saveEvent()">Simpan</button>
+<div id="events"></div>
 </div>
 
-<!-- TIMER -->
-<div id="timer" class="page">
-  <h1>⏱️ Timer</h1>
-  <div class="card center">
-    <h2 id="time">25</h2>
-    <button onclick="startTimer()">Start</button>
-  </div>
+<!-- REMINDER -->
+<div id="rem" class="page">
+<h2>Reminder</h2>
+<input type="time" id="remTime">
+<button onclick="setRem()">Set Reminder</button>
 </div>
 
-<!-- GAME -->
-<div id="game" class="page">
-  <h1>🎯 Tap Game</h1>
-  <div class="card center">
-    <h2>Score: <span id="score">0</span></h2>
-    <button onclick="startGame()">Start</button>
-    <button id="tapBtn" onclick="tap()">TAP</button>
-    <h3 id="result"></h3>
-  </div>
+<!-- MUSIC -->
+<div id="music" class="page center">
+<h2>Focus Sound</h2>
+<button onclick="lofi()">🎧 Lofi</button>
+<button onclick="rain()">🌧️ Rain</button>
+<audio id="audio" loop></audio>
 </div>
 
-<!-- CLOCK -->
-<div id="clock" class="page">
-  <h1>🕒 Jam</h1>
-  <div class="card center">
-    <h2 id="jam"></h2>
-  </div>
+<!-- RANDOM -->
+<div id="rand" class="page center">
+<h2>Random Picker</h2>
+<input id="opt" placeholder="pisahkan dengan koma">
+<button onclick="pick()">Pilih</button>
+<h3 id="res"></h3>
+</div>
+
+<!-- BOOKMARK -->
+<div id="book" class="page">
+<h2>Bookmark</h2>
+<input id="link">
+<button onclick="saveLink()">Simpan</button>
+<div id="links"></div>
+</div>
+
+<!-- FILE -->
+<div id="file" class="page">
+<h2>File</h2>
+<input type="file" onchange="saveFile(event)">
+<div id="files"></div>
+</div>
+
+<!-- NOTES LOCK -->
+<div id="lock" class="page">
+<h2>Lock Notes</h2>
+<input type="password" id="pass">
+<button onclick="unlock()">Buka</button>
+<textarea id="secret" style="display:none"></textarea>
 </div>
 
 <!-- NAV -->
-<div class="navbar">
-  <button onclick="show('todo')">📝</button>
-  <button onclick="show('notes')">📒</button>
-  <button onclick="show('timer')">⏱️</button>
-  <button onclick="show('game')">🎮</button>
-  <button onclick="show('clock')">🕒</button>
+<div class="nav">
+<button onclick="show('todo')">📝</button>
+<button onclick="show('cal')">📅</button>
+<button onclick="show('rem')">⏰</button>
+<button onclick="show('music')">🎧</button>
+<button onclick="show('rand')">🎲</button>
+<button onclick="show('book')">📌</button>
+<button onclick="show('file')">📁</button>
+<button onclick="show('lock')">🔐</button>
 </div>
 
 <script>
-function show(p){
-  document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
-  document.getElementById(p).classList.add('active');
-}
+function show(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(p).classList.add('active')}
 
-/* TODO */
-let data=JSON.parse(localStorage.getItem("t"))||[];
-
+/* TODO + STAT */
+let t=JSON.parse(localStorage.getItem("t"))||[];
 function render(){
-  let h="";
-  data.forEach((t,i)=>{
-    h+=`<div class="task">
-    <span onclick="toggle(${i})" class="${t.done?'done':''}">${t.text}</span>
-    <button onclick="del(${i})">x</button></div>`;
-  });
-  list.innerHTML=h;
+let done=t.filter(x=>x.done).length;
+stat.innerText=done+"/"+t.length;
+list.innerHTML=t.map((x,i)=>`<div onclick="tog(${i})" class="${x.done?'done':''}">${x.text}</div>`).join("");
 }
-
-function add(){
-  if(task.value){
-    data.push({text:task.value,done:false});
-    localStorage.setItem("t",JSON.stringify(data));
-    task.value="";
-    render();
-  }
-}
-
-function toggle(i){
-  data[i].done=!data[i].done;
-  localStorage.setItem("t",JSON.stringify(data));
-  render();
-}
-
-function del(i){
-  data.splice(i,1);
-  localStorage.setItem("t",JSON.stringify(data));
-  render();
-}
-
+function add(){t.push({text:task.value,done:false});localStorage.setItem("t",JSON.stringify(t));render()}
+function tog(i){t[i].done=!t[i].done;localStorage.setItem("t",JSON.stringify(t));render()}
 render();
 
-/* NOTES */
-note.value=localStorage.getItem("n")||"";
-note.oninput=()=>localStorage.setItem("n",note.value);
-
-/* TIMER */
-let t=25,run=false;
-function startTimer(){
-  if(run)return;
-  run=true;
-  let i=setInterval(()=>{
-    if(t<=0){clearInterval(i);run=false;alert("Done");}
-    t--; time.innerText=t;
-  },1000);
+/* CALENDAR */
+let ev=JSON.parse(localStorage.getItem("ev"))||[];
+function saveEvent(){
+ev.push({d:date.value,e:event.value});
+localStorage.setItem("ev",JSON.stringify(ev));
+events.innerHTML=ev.map(x=>x.d+" - "+x.e).join("<br>");
 }
 
-/* GAME */
-let score=0,timeLeft=10,playing=false;
-
-function startGame(){
-  score=0;
-  timeLeft=10;
-  playing=true;
-  result.innerText="";
-  let interval=setInterval(()=>{
-    timeLeft--;
-    if(timeLeft<=0){
-      clearInterval(interval);
-      playing=false;
-      result.innerText="Score kamu: "+score;
-    }
-  },1000);
+/* REMINDER */
+function setRem(){
+Notification.requestPermission().then(p=>{
+if(p==="granted"){
+setTimeout(()=>new Notification("Reminder!"),5000);
+}});
 }
 
-function tap(){
-  if(playing){
-    score++;
-    document.getElementById("score").innerText=score;
-  }
+/* MUSIC */
+function lofi(){audio.src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";audio.play()}
+function rain(){audio.src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3";audio.play()}
+
+/* RANDOM */
+function pick(){
+let arr=opt.value.split(",");
+res.innerText=arr[Math.floor(Math.random()*arr.length)];
 }
 
-/* CLOCK */
-setInterval(()=>{
-  jam.innerText=new Date().toLocaleTimeString();
-},1000);
+/* BOOKMARK */
+let links=JSON.parse(localStorage.getItem("l"))||[];
+function saveLink(){
+links.push(link.value);
+localStorage.setItem("l",JSON.stringify(links));
+links.innerHTML=links.map(x=>`<a href="${x}" target="_blank">${x}</a>`).join("<br>");
+}
+
+/* FILE */
+function saveFile(e){
+let f=e.target.files[0];
+files.innerText=f.name;
+}
+
+/* LOCK */
+function unlock(){
+if(pass.value==="1234"){
+secret.style.display="block";
+secret.value=localStorage.getItem("s")||"";
+secret.oninput=()=>localStorage.setItem("s",secret.value);
+}else alert("Password salah");
+}
 
 /* SW */
 if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("sw.js");
+navigator.serviceWorker.register("sw.js");
 }
 </script>
 
 </body>
-  </html>
+</html>

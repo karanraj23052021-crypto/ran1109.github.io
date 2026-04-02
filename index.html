@@ -3,275 +3,474 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ran Super App V2</title>
+  <title>Ran Super App Ultimate</title>
+  
+  <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    /* CSS Variables untuk Custom Theme */
     :root {
-      --bg-color: #0f172a;
-      --card-bg: rgba(30, 41, 59, 0.7);
-      --primary: #38bdf8; /* Default Blue */
+      --bg: #0f172a;
+      --card: rgba(30, 41, 59, 0.7);
+      --primary: #38bdf8; /* Default Theme Color */
       --text: #f8fafc;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; transition: background 0.3s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; transition: background 0.3s ease; }
     
-    .app-container { width: 100%; max-width: 480px; padding: 24px 24px 100px 24px; }
-    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 16px; color: var(--primary); }
+    .app-container { width: 100%; max-width: 480px; padding: 20px 20px 100px 20px; overflow-x: hidden; }
     
-    .page { display: none; animation: fadeIn 0.3s ease; }
+    /* Layout & Animasi */
+    .page { display: none; animation: slideUp 0.3s ease; }
     .active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-    .card { background: var(--card-bg); backdrop-filter: blur(10px); padding: 16px; border-radius: 16px; margin-bottom: 12px; border: 1px solid rgba(255, 255, 255, 0.05); }
+    h2 { font-size: 1.5rem; color: var(--primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; transition: color 0.3s; }
+    h3 { font-size: 1.1rem; margin-top: 15px; margin-bottom: 10px; color: #cbd5e1; }
     
-    input, textarea, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.6); color: white; margin-bottom: 12px; outline: none; }
-    input:focus { border-color: var(--primary); }
+    /* UI Components */
+    .card { background: var(--card); backdrop-filter: blur(10px); padding: 16px; border-radius: 20px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
+    .center { text-align: center; }
     
-    button { padding: 14px 20px; border: none; border-radius: 12px; background: var(--primary); color: #0f172a; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; }
-    button:hover { opacity: 0.9; transform: scale(0.98); }
+    input, button, select, textarea { font-family: inherit; }
+    input, textarea { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; margin-bottom: 10px; outline: none; transition: 0.3s; }
+    input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+    
+    button { padding: 14px; border: none; border-radius: 12px; background: var(--primary); color: #0f172a; font-weight: 600; cursor: pointer; transition: 0.2s; width: 100%; }
+    button:active { transform: scale(0.95); }
 
-    /* Drag & Drop Styles */
-    .todo-item { display: flex; align-items: center; padding: 14px; background: rgba(30, 41, 59, 0.5); border-radius: 12px; margin-bottom: 8px; cursor: grab; border: 1px solid rgba(255,255,255,0.05); }
+    /* Drag & Drop Todo */
+    .todo-item { display: flex; align-items: center; justify-content: space-between; padding: 14px; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 8px; cursor: grab; border: 1px solid transparent; }
     .todo-item.dragging { opacity: 0.5; border: 2px dashed var(--primary); }
-    .todo-item.done { text-decoration: line-through; opacity: 0.4; }
+    .todo-item.done span { text-decoration: line-through; opacity: 0.5; }
 
-    /* Chat AI */
-    .chat-box { height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
-    .msg { padding: 8px 12px; border-radius: 12px; max-width: 80%; font-size: 0.9rem; }
-    .msg.user { background: var(--primary); color: #000; align-self: flex-end; }
-    .msg.bot { background: rgba(255,255,255,0.1); align-self: flex-start; }
+    /* Habit Tracker */
+    .habit-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .streak-badge { background: #fbbf24; color: #000; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin-top: 5px; display: inline-block; }
 
-    /* Taskbar */
-    .nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 440px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(15px); padding: 10px; border-radius: 24px; display: flex; gap: 8px; overflow-x: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100;}
-    .nav::-webkit-scrollbar { display: none; }
-    .nav button { flex: 0 0 auto; width: 50px; height: 50px; background: transparent; color: white; font-size: 1.3rem; }
-    .nav button.active-btn { background: rgba(255,255,255,0.1); border: 1px solid var(--primary); }
+    /* AI Chat */
+    #chatBox { height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; padding: 5px; }
+    .msg { padding: 10px 14px; border-radius: 15px; max-width: 80%; font-size: 0.95rem; line-height: 1.4; }
+    .msg.bot { background: rgba(255,255,255,0.1); align-self: flex-start; border-bottom-left-radius: 2px; }
+    .msg.user { background: var(--primary); color: #0f172a; align-self: flex-end; border-bottom-right-radius: 2px; }
 
-    /* Login Overlay */
-    #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg-color); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+    /* Nav Taskbar (Scrollable) */
+    .nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 440px; background: rgba(15,23,42,0.85); backdrop-filter: blur(15px); padding: 10px; border-radius: 25px; display: flex; gap: 8px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 25px rgba(0,0,0,0.5); overflow-x: auto; scroll-behavior: smooth; z-index: 100; }
+    .nav::-webkit-scrollbar { display: none; } /* Hide scrollbar */
+    .nav button { flex: 0 0 auto; width: 50px; height: 50px; padding: 0; background: transparent; color: white; font-size: 1.4rem; border-radius: 16px; transition: 0.3s; }
+    .nav button:hover { background: rgba(255,255,255,0.1); }
+    .nav button.active-btn { background: rgba(255,255,255,0.1); border: 1px solid var(--primary); transform: translateY(-3px); }
+    
+    /* Links */
+    a { color: var(--primary); text-decoration: none; word-break: break-all; }
   </style>
 </head>
 <body>
 
-<div id="loginOverlay">
-  <h1 style="color: var(--primary); margin-bottom: 20px;">Ran Super App</h1>
-  <div class="card" style="width: 100%; max-width: 300px;">
-    <p style="text-align:center; margin-bottom: 15px;">Silakan masuk (PIN Default: 1234)</p>
-    <input type="password" id="loginPin" placeholder="Masukkan PIN">
-    <button onclick="doLogin()">Masuk</button>
-  </div>
-</div>
-
 <div class="app-container">
 
   <div id="todo" class="page active">
-    <h2>📝 To-Do List</h2>
-    <div style="display: flex; gap: 8px;">
-      <input id="task" placeholder="Tulis tugas baru...">
-      <button onclick="add()" style="width: auto;">+</button>
+    <h2>📝 Task Manager</h2>
+    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+      <input id="taskInput" placeholder="Tambah tugas baru..." style="margin:0">
+      <button onclick="addTodo()" style="width: auto; padding: 0 20px;">Tambah</button>
     </div>
-    <div id="list"></div>
+    <div id="todoList"></div>
+  </div>
+
+  <div id="cal" class="page">
+    <h2>📅 Kalender Event</h2>
+    <div class="card">
+      <input type="date" id="dateInput">
+      <input id="eventInput" placeholder="Nama Kegiatan">
+      <button onclick="saveEvent()">Simpan Event</button>
+    </div>
+    <h3>Jadwal Mendatang</h3>
+    <div id="eventsList"></div>
+  </div>
+
+  <div id="rem" class="page">
+    <h2>⏰ Reminder Pintar</h2>
+    <div class="card center">
+      <p style="margin-bottom: 15px; color: #94a3b8; font-size: 0.9rem;">Atur alarm agar tidak lupa jadwalmu.</p>
+      <input type="time" id="remTime">
+      <button onclick="setRem()">Aktifkan Reminder</button>
+    </div>
+  </div>
+
+  <div id="music" class="page center">
+    <h2>🎧 Focus Sound</h2>
+    <p style="margin-bottom: 20px; color: #94a3b8;">Suara background untuk bantu fokus kerja.</p>
+    <div class="card">
+      <button onclick="playMusic('lofi')" style="margin-bottom: 10px;">🎧 Play Lofi</button>
+      <button onclick="playMusic('rain')" style="margin-bottom: 10px;">🌧️ Play Rain</button>
+      <button onclick="stopMusic()" style="background: #ef4444; color: white;">🛑 Stop</button>
+    </div>
+    <audio id="audioElement" loop></audio>
+  </div>
+
+  <div id="rand" class="page center">
+    <h2>🎲 Random Picker</h2>
+    <p style="margin-bottom: 15px; color: #94a3b8;">Bantu pilih secara acak (pisahkan dengan koma).</p>
+    <input id="optInput" placeholder="Contoh: Makan Nasi, Makan Mie">
+    <button onclick="pickRandom()">Pilih Acak!</button>
+    <div class="card" style="margin-top: 20px; padding: 30px 10px;">
+      <h3 id="randResult" style="margin: 0; font-size: 1.5rem; color: var(--primary);">- Hasil -</h3>
+    </div>
+  </div>
+
+  <div id="book" class="page">
+    <h2>📌 Bookmark URL</h2>
+    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+      <input id="linkInput" placeholder="https://..." style="margin:0">
+      <button onclick="saveLink()" style="width: auto; padding: 0 20px;">Simpan</button>
+    </div>
+    <div id="linksList"></div>
+  </div>
+
+  <div id="file" class="page">
+    <h2>📁 Simpan Info File</h2>
+    <div class="card center">
+      <input type="file" onchange="checkFile(event)" style="background: transparent; border: 1px dashed rgba(255,255,255,0.2);">
+      <p id="fileName" style="margin-top: 10px; color: var(--primary); word-break: break-all;"></p>
+    </div>
+  </div>
+
+  <div id="lock" class="page">
+    <h2>🔐 Secret Notes</h2>
+    <div class="card" id="lockScreen">
+      <p style="margin-bottom: 10px;">Masukkan PIN (Default: 1234)</p>
+      <input type="password" id="passInput" placeholder="PIN Rahasia">
+      <button onclick="unlockNotes()">Buka Brankas</button>
+    </div>
+    <textarea id="secretArea" style="display:none; height: 300px;" placeholder="Tulis rahasiamu di sini... Otomatis tersimpan!"></textarea>
   </div>
 
   <div id="stats" class="page">
     <h2>📊 Dashboard</h2>
     <div class="card">
-      <canvas id="myChart"></canvas>
+      <canvas id="statChart"></canvas>
     </div>
-    <div class="card" style="display: flex; justify-content: space-between;">
-      <span>Total Tugas Selesai:</span>
-      <strong id="totalDone" style="color: var(--primary);">0</strong>
+    <div class="card center">
+      <p style="color: #94a3b8;">Total Tugas Selesai</p>
+      <h1 id="doneCount" style="font-size: 3rem; color: var(--primary);">0</h1>
     </div>
   </div>
 
   <div id="habit" class="page">
     <h2>🔥 Habit Tracker</h2>
-    <div style="display: flex; gap: 8px;">
-      <input id="habitInput" placeholder="Kebiasaan baru...">
-      <button onclick="addHabit()" style="width: auto;">+</button>
+    <div class="card" style="display: flex; gap: 10px;">
+      <input id="habitInput" placeholder="Nama habit..." style="margin:0">
+      <button onclick="addHabit()" style="width: auto; padding: 0 20px;">+</button>
     </div>
     <div id="habitList"></div>
   </div>
 
   <div id="ai" class="page">
-    <h2>🤖 AI Assistant</h2>
+    <h2>🤖 Ran Assistant</h2>
     <div class="card">
-      <div class="chat-box" id="chatBox">
-        <div class="msg bot">Halo! Ada yang bisa Ran AI bantu?</div>
+      <div id="chatBox">
+        <div class="msg bot">Halo bos! Ada yang bisa aku bantu hari ini?</div>
       </div>
-      <div style="display: flex; gap: 8px;">
-        <input id="aiInput" placeholder="Tanya sesuatu..." onkeypress="if(event.key==='Enter') sendChat()">
-        <button onclick="sendChat()" style="width: auto;">Kirim</button>
+      <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <input id="aiInput" placeholder="Tanya sesuatu..." style="margin:0" onkeypress="if(event.key==='Enter') askAI()">
+        <button onclick="askAI()" style="width: auto; padding: 0 20px;">Kirim</button>
       </div>
     </div>
   </div>
 
   <div id="settings" class="page">
-    <h2>⚙️ Settings</h2>
+    <h2>⚙️ Settings & Data</h2>
     <div class="card">
-      <h3>Pilih Tema</h3>
-      <div style="display:flex; gap:10px; margin-top:10px;">
-        <button style="background:#38bdf8; color:white;" onclick="setTheme('#38bdf8')">Blue</button>
-        <button style="background:#a855f7; color:white;" onclick="setTheme('#a855f7')">Purple</button>
-        <button style="background:#22c55e; color:white;" onclick="setTheme('#22c55e')">Green</button>
+      <h3>🎨 Tema Aplikasi</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <button onclick="changeTheme('#38bdf8')" style="background:#38bdf8; color:white;">Blue Sky</button>
+        <button onclick="changeTheme('#a855f7')" style="background:#a855f7; color:white;">Purple Rain</button>
+        <button onclick="changeTheme('#22c55e')" style="background:#22c55e; color:white;">Green Eco</button>
+        <button onclick="changeTheme('#f43f5e')" style="background:#f43f5e; color:white;">Soft Red</button>
       </div>
     </div>
     <div class="card">
-      <h3>Data</h3>
-      <button onclick="exportData()" style="background: transparent; border: 1px solid var(--primary); color: var(--primary);">📥 Export Data (JSON)</button>
+      <h3>💾 Backup Data</h3>
+      <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">Download semua datamu (To-do, Habit, Notes, Kalender) ke dalam satu file JSON.</p>
+      <button onclick="exportData()" style="background: transparent; border: 1px solid var(--primary); color: var(--text);">📥 Export Semua Data</button>
     </div>
   </div>
 
 </div>
 
 <div class="nav" id="taskbar">
-  <button class="nav-btn active-btn" onclick="show('todo', this)">📝</button>
-  <button class="nav-btn" onclick="show('stats', this)">📊</button>
-  <button class="nav-btn" onclick="show('habit', this)">🔥</button>
-  <button class="nav-btn" onclick="show('ai', this)">🤖</button>
-  <button class="nav-btn" onclick="show('settings', this)">⚙️</button>
+  <button class="nav-btn active-btn" onclick="show('todo', this)" title="To-Do">📝</button>
+  <button class="nav-btn" onclick="show('cal', this)" title="Calendar">📅</button>
+  <button class="nav-btn" onclick="show('rem', this)" title="Reminder">⏰</button>
+  <button class="nav-btn" onclick="show('music', this)" title="Music">🎧</button>
+  <button class="nav-btn" onclick="show('rand', this)" title="Random">🎲</button>
+  <button class="nav-btn" onclick="show('book', this)" title="Bookmark">📌</button>
+  <button class="nav-btn" onclick="show('file', this)" title="File">📁</button>
+  <button class="nav-btn" onclick="show('lock', this)" title="Notes">🔐</button>
+  <button class="nav-btn" onclick="show('stats', this)" title="Stats">📊</button>
+  <button class="nav-btn" onclick="show('habit', this)" title="Habit">🔥</button>
+  <button class="nav-btn" onclick="show('ai', this)" title="AI Chat">🤖</button>
+  <button class="nav-btn" onclick="show('settings', this)" title="Settings">⚙️</button>
 </div>
 
 <script>
-// --- CORE & NAVIGATION ---
-function show(pageId, btnElement) {
+/* ================= NAVIGATION & THEME ================= */
+function show(pageId, btn) {
   document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
   document.getElementById(pageId).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active-btn'));
-  if(btnElement) btnElement.classList.add('active-btn');
-  if(pageId === 'stats') updateChart();
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-btn'));
+  if(btn) btn.classList.add('active-btn');
+  
+  // Update chart otomatis kalau buka halaman stats
+  if(pageId === 'stats') updateStats();
 }
 
-// --- LOGIN (PSEUDO) ---
-function doLogin() {
-  if(document.getElementById('loginPin').value === '1234') {
-    document.getElementById('loginOverlay').style.display = 'none';
+function changeTheme(color) {
+  document.documentElement.style.setProperty('--primary', color);
+  localStorage.setItem('ran_theme', color);
+  if(chartInstance) updateStats(); // Update warna grafik
+}
+if(localStorage.getItem('ran_theme')) changeTheme(localStorage.getItem('ran_theme'));
+
+
+/* ================= 1. TODO (DRAG & DROP) ================= */
+let todos = JSON.parse(localStorage.getItem("ran_todos")) || [];
+function renderTodo() {
+  const container = document.getElementById('todoList');
+  container.innerHTML = "";
+  todos.forEach((t, i) => {
+    const div = document.createElement('div');
+    div.className = `todo-item ${t.done ? 'done' : ''}`;
+    div.draggable = true;
+    div.innerHTML = `
+      <div style="flex:1; display:flex; align-items:center; gap:10px;" onclick="toggleTodo(${i})">
+        <span>${t.done ? '✅' : '⭕'}</span>
+        <span style="flex:1; word-break:break-word;">${t.text}</span>
+      </div>
+      <button onclick="deleteTodo(${i})" style="width:auto; padding:5px 10px; background:#ef4444; color:white;">X</button>
+    `;
+    
+    // Logic Drag Drop
+    div.ondragstart = () => div.classList.add('dragging');
+    div.ondragend = () => div.classList.remove('dragging');
+    container.ondragover = (e) => {
+      e.preventDefault();
+      const dragging = document.querySelector('.dragging');
+      if(dragging) container.appendChild(dragging);
+    };
+    container.ondrop = () => saveOrder();
+    
+    container.appendChild(div);
+  });
+}
+function addTodo() {
+  const val = document.getElementById('taskInput').value.trim();
+  if(!val) return;
+  todos.push({ text: val, done: false });
+  saveTodos();
+  document.getElementById('taskInput').value = "";
+}
+function toggleTodo(i) { todos[i].done = !todos[i].done; saveTodos(); }
+function deleteTodo(i) { todos.splice(i, 1); saveTodos(); }
+function saveTodos() { localStorage.setItem("ran_todos", JSON.stringify(todos)); renderTodo(); }
+function saveOrder() {
+  const items = [...document.querySelectorAll('.todo-item')];
+  // Mengambil teks tugas dan mengabaikan emoticon awal
+  todos = items.map(el => {
+    let rawText = el.querySelector('span:nth-child(2)').innerText;
+    let isDone = el.classList.contains('done');
+    return { text: rawText, done: isDone };
+  });
+  localStorage.setItem("ran_todos", JSON.stringify(todos));
+}
+renderTodo();
+
+
+/* ================= 2. CALENDAR ================= */
+let events = JSON.parse(localStorage.getItem("ran_events")) || [];
+function renderEvents() {
+  document.getElementById('eventsList').innerHTML = events.map(x => `
+    <div class="card" style="padding: 10px 15px;">
+      <span style="color:var(--primary); font-size:0.85rem; font-weight:bold;">${x.d}</span><br>
+      ${x.e}
+    </div>
+  `).join("");
+}
+function saveEvent() {
+  let d = document.getElementById('dateInput').value;
+  let e = document.getElementById('eventInput').value;
+  if(!d || !e) return alert("Isi tanggal dan nama kegiatan!");
+  events.push({ d, e });
+  localStorage.setItem("ran_events", JSON.stringify(events));
+  document.getElementById('dateInput').value = "";
+  document.getElementById('eventInput').value = "";
+  renderEvents();
+}
+renderEvents();
+
+
+/* ================= 3. REMINDER ================= */
+function setRem() {
+  let timeStr = document.getElementById('remTime').value;
+  if(!timeStr) return alert("Pilih waktu dulu!");
+  Notification.requestPermission().then(p => {
+    if(p === "granted") {
+      alert(`Reminder diset! (Simulasi notif akan muncul 5 detik dari sekarang)`);
+      setTimeout(() => new Notification("⏰ Info dari Ran App!", { body: "Ini simulasi notifikasi kamu." }), 5000);
+    } else {
+      alert("Tolong izinkan notifikasi di browser ya.");
+    }
+  });
+}
+
+
+/* ================= 4. MUSIC ================= */
+let audioEl = document.getElementById('audioElement');
+function playMusic(type) {
+  if(type === 'lofi') audioEl.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+  if(type === 'rain') audioEl.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3";
+  audioEl.play();
+}
+function stopMusic() {
+  audioEl.pause();
+  audioEl.currentTime = 0;
+}
+
+
+/* ================= 5. RANDOM PICKER ================= */
+function pickRandom() {
+  let val = document.getElementById('optInput').value;
+  if(!val) return;
+  let arr = val.split(",").map(item => item.trim()).filter(item => item);
+  let resText = document.getElementById('randResult');
+  
+  resText.innerText = "Mengacak... 🎲";
+  setTimeout(() => {
+    resText.innerText = arr[Math.floor(Math.random() * arr.length)] + " 🎉";
+  }, 600);
+}
+
+
+/* ================= 6. BOOKMARK ================= */
+let links = JSON.parse(localStorage.getItem("ran_links")) || [];
+function renderLinks() {
+  document.getElementById('linksList').innerHTML = links.map(x => `
+    <div class="card" style="padding:10px;">
+      <a href="${x}" target="_blank">🔗 ${x}</a>
+    </div>
+  `).join("");
+}
+function saveLink() {
+  let input = document.getElementById('linkInput');
+  if(!input.value) return;
+  links.push(input.value);
+  localStorage.setItem("ran_links", JSON.stringify(links));
+  input.value = "";
+  renderLinks();
+}
+renderLinks();
+
+
+/* ================= 7. FILE ================= */
+function checkFile(e) {
+  let f = e.target.files[0];
+  if(f) document.getElementById('fileName').innerText = `File Terpilih: ${f.name} (${(f.size/1024).toFixed(1)} KB)`;
+}
+
+
+/* ================= 8. LOCK NOTES ================= */
+function unlockNotes() {
+  let pass = document.getElementById('passInput');
+  let secretBox = document.getElementById('secretArea');
+  if(pass.value === "1234") {
+    document.getElementById('lockScreen').style.display = "none";
+    secretBox.style.display = "block";
+    secretBox.value = localStorage.getItem("ran_secret") || "";
+    // Save otomatis saat ngetik
+    secretBox.onkeyup = () => localStorage.setItem("ran_secret", secretBox.value);
   } else {
-    alert("PIN Salah! Coba 1234");
+    alert("PIN Salah! Coba pakai 1234");
   }
 }
 
-// --- THEME ---
-function setTheme(color) {
-  document.documentElement.style.setProperty('--primary', color);
-  localStorage.setItem('themeColor', color);
-  if(myChartInstance) updateChart(); // Update warna grafik
-}
-let savedColor = localStorage.getItem('themeColor');
-if(savedColor) setTheme(savedColor);
 
-// --- TODO & DRAG AND DROP ---
-let t = JSON.parse(localStorage.getItem("t")) || [];
-let dragIndex = null;
-
-function renderTodo() {
-  const listDiv = document.getElementById('list');
-  listDiv.innerHTML = '';
-  t.forEach((x, i) => {
-    let div = document.createElement('div');
-    div.className = `todo-item ${x.done ? 'done' : ''}`;
-    div.draggable = true;
-    div.innerHTML = `<span onclick="tog(${i})" style="flex-grow:1;">${x.done ? '✅' : '⭕'} ${x.text}</span> <button onclick="del(${i})" style="width:auto; padding:5px; background:red; color:white;">X</button>`;
-    
-    // Event Drag Drop
-    div.ondragstart = () => { dragIndex = i; div.classList.add('dragging'); };
-    div.ondragend = () => { div.classList.remove('dragging'); };
-    div.ondragover = (e) => { e.preventDefault(); };
-    div.ondrop = () => {
-      let temp = t[dragIndex];
-      t.splice(dragIndex, 1);
-      t.splice(i, 0, temp);
-      saveTodo(); renderTodo();
-    };
-    listDiv.appendChild(div);
-  });
-}
-function add() {
-  let val = document.getElementById('task').value;
-  if(val) { t.push({ text: val, done: false }); saveTodo(); renderTodo(); document.getElementById('task').value = ""; }
-}
-function tog(i) { t[i].done = !t[i].done; saveTodo(); renderTodo(); }
-function del(i) { t.splice(i, 1); saveTodo(); renderTodo(); }
-function saveTodo() { localStorage.setItem("t", JSON.stringify(t)); }
-renderTodo();
-
-// --- DASHBOARD STATS (Chart.js) ---
-let myChartInstance = null;
-function updateChart() {
-  let done = t.filter(x => x.done).length;
-  let pending = t.length - done;
-  document.getElementById('totalDone').innerText = done;
+/* ================= 9. DASHBOARD STATS ================= */
+let chartInstance;
+function updateStats() {
+  const done = todos.filter(t => t.done).length;
+  const total = todos.length;
+  const pending = total - done;
+  document.getElementById('doneCount').innerText = done;
   
-  let ctx = document.getElementById('myChart').getContext('2d');
-  let color = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+  const ctx = document.getElementById('statChart').getContext('2d');
+  if(chartInstance) chartInstance.destroy();
   
-  if(myChartInstance) myChartInstance.destroy();
-  myChartInstance = new Chart(ctx, {
+  let primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+  
+  chartInstance = new Chart(ctx, {
     type: 'doughnut',
     data: {
       labels: ['Selesai', 'Belum'],
-      datasets: [{ data: [done, pending], backgroundColor: [color, 'rgba(255,255,255,0.1)'], borderWidth: 0 }]
+      datasets: [{
+        data: [done, pending],
+        backgroundColor: [primaryColor, 'rgba(255,255,255,0.05)'],
+        borderColor: ['transparent', 'rgba(255,255,255,0.1)'],
+        borderWidth: 1
+      }]
     },
-    options: { plugins: { legend: { labels: { color: '#fff' } } } }
+    options: { 
+      plugins: { legend: { labels: { color: '#fff' } } },
+      cutout: '70%'
+    }
   });
 }
 
-// --- HABIT TRACKER ---
-let habits = JSON.parse(localStorage.getItem("habits")) || [];
+
+/* ================= 10. HABIT TRACKER ================= */
+let habits = JSON.parse(localStorage.getItem("ran_habits")) || [];
 function renderHabits() {
   document.getElementById('habitList').innerHTML = habits.map((h, i) => `
-    <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-      <span>${h.name}</span>
+    <div class="card habit-row">
       <div>
-        <span style="margin-right:10px; color:var(--primary);">🔥 ${h.streak}</span>
-        <button onclick="hitHabit(${i})" style="width:auto; padding:5px 10px;">+1</button>
+        <strong>${h.name}</strong> <br>
+        <span class="streak-badge">🔥 ${h.streak} Streak</span>
       </div>
+      <button onclick="hitHabit(${i})" style="width: auto; padding: 8px 15px;">Check</button>
     </div>
-  `).join('');
+  `).join("");
 }
 function addHabit() {
   let val = document.getElementById('habitInput').value;
-  if(val) { habits.push({ name: val, streak: 0 }); localStorage.setItem("habits", JSON.stringify(habits)); renderHabits(); document.getElementById('habitInput').value=''; }
+  if(!val) return;
+  habits.push({ name: val, streak: 0 });
+  localStorage.setItem("ran_habits", JSON.stringify(habits));
+  document.getElementById('habitInput').value = "";
+  renderHabits();
 }
-function hitHabit(i) { habits[i].streak++; localStorage.setItem("habits", JSON.stringify(habits)); renderHabits(); }
+function hitHabit(i) {
+  habits[i].streak++;
+  localStorage.setItem("ran_habits", JSON.stringify(habits));
+  renderHabits();
+}
 renderHabits();
 
-// --- AI ASSISTANT (Rule-Based) ---
-function sendChat() {
-  let input = document.getElementById('aiInput');
-  let text = input.value.trim().toLowerCase();
-  if(!text) return;
-  
-  let box = document.getElementById('chatBox');
-  box.innerHTML += `<div class="msg user">${input.value}</div>`;
-  input.value = '';
-  
-  // Fake AI Logic
-  setTimeout(() => {
-    let reply = "Maaf, aku belum ngerti. Coba tanya hal lain!";
-    if(text.includes('halo') || text.includes('hai')) reply = "Halo bos! Ada tugas yang mau diselesaikan hari ini?";
-    else if(text.includes('tugas') || text.includes('todo')) reply = `Kamu punya ${t.filter(x=>!x.done).length} tugas yang belum selesai nih.`;
-    else if(text.includes('siapa')) reply = "Aku Ran AI, asisten virtual di Super App ini!";
-    
-    box.innerHTML += `<div class="msg bot">${reply}</div>`;
-    box.scrollTop = box.scrollHeight; // Auto scroll ke bawah
-  }, 500);
-}
 
-// --- EXPORT DATA ---
-function exportData() {
-  let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ todo: t, habits: habits }));
-  let node = document.createElement('a');
-  node.setAttribute("href", dataStr);
-  node.setAttribute("download", "ran_superapp_data.json");
-  document.body.appendChild(node);
-  node.click();
-  node.remove();
-}
-</script>
-</body>
-</html>
+/* ================= 11. AI ASSISTANT (Rule-Based) ================= */
+function askAI() {
+  const input = document.getElementById('aiInput');
+  const msg = input.value.trim().toLowerCase();
+  if(!msg) return;
+  
+  const chatBox = document.getElementById('chatBox');
+  chatBox.innerHTML += `<div class="msg user">${input.value}</div>`;
+  input.value = "";
+  
+  // Logika sederhana robot
+  let reply = "Maaf, aku belum diprogram untuk mengerti itu. Coba tanya tentang tugas atau habit kamu.";
+  if(msg.includes("halo") || msg.includes("hai")) reply = "Halo bos! Udah siap produktif hari ini?";
+  if(msg.includes("tugas") || msg.includes("todo")) reply = `Sisa tugas kamu ada ${todos.filter(t=>!t.done).length} nih yang belum beres. Semangat!`;
+  if(msg.includes("habit")) reply = "Wah, jangan lupa pertahankan streak habit kamu biar makin keren.";
+  if(msg.includes("siapa")

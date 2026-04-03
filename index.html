@@ -473,4 +473,40 @@ function askAI() {
   if(msg.includes("halo") || msg.includes("hai")) reply = "Halo bos! Udah siap produktif hari ini?";
   if(msg.includes("tugas") || msg.includes("todo")) reply = `Sisa tugas kamu ada ${todos.filter(t=>!t.done).length} nih yang belum beres. Semangat!`;
   if(msg.includes("habit")) reply = "Wah, jangan lupa pertahankan streak habit kamu biar makin keren.";
-  if(msg.includes("siapa")
+  if(msg.includes("siapa")) reply = "Aku Ran AI, asisten virtual buatanmu yang keren ini.";
+  if(msg.includes("game")) reply = "Lagi ga main The Last of Us atau Solo Leveling nih? Kerjain tugas dulu gih! 😉";
+
+  setTimeout(() => {
+    chatBox.innerHTML += `<div class="msg bot">${reply}</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }, 600);
+}
+
+
+/* ================= 12. EXPORT DATA ================= */
+function exportData() {
+  const data = {
+    todos: todos,
+    events: events,
+    links: links,
+    habits: habits,
+    secret_notes: localStorage.getItem("ran_secret") || "",
+    theme: localStorage.getItem("ran_theme") || ""
+  };
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", "ran_superapp_backup.json");
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+}
+
+/* Service Worker Register */
+if("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(err => console.log("SW blm ada/offline"));
+}
+</script>
+
+</body>
+</html>

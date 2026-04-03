@@ -72,11 +72,18 @@
     .todo-item.done .checkbox { background: var(--primary); color: #000; box-shadow: var(--glow); }
 
     /* AI Chat */
-    #chatBox { height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 5px; scroll-behavior: smooth; }
     .msg { padding: 12px 16px; border-radius: 20px; max-width: 85%; font-size: 0.95rem; line-height: 1.5; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
     @keyframes popIn { 0% { opacity: 0; transform: scale(0.9) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
     .msg.bot { background: rgba(255,255,255,0.08); align-self: flex-start; border-bottom-left-radius: 4px; }
     .msg.user { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #000; align-self: flex-end; border-bottom-right-radius: 4px; font-weight: 600; }
+    
+    /* CSS BARU UNTUK AI BATTLE (Split Screen) */
+    .ai-split-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+    .ai-panel { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; }
+    .ai-panel-header { font-weight: 800; text-align: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem; }
+    .header-gpt { color: #10a37f; } 
+    .header-gemini { color: #8e24aa; } 
+    .ai-chat-box { flex: 1; height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; scroll-behavior: smooth; }
 
     /* TASKBAR */
     .nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 30px); max-width: 460px; padding: 10px; border-radius: 30px; display: flex; gap: 8px; overflow-x: auto; z-index: 1000; scroll-behavior: smooth; border: 1px solid var(--glass-border); background: rgba(11, 15, 25, 0.85); box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
@@ -242,14 +249,27 @@
   </div>
 
   <div id="ai" class="page">
-    <h2>🤖 Ran Virtual</h2>
+    <h2>🤖 AI Battle: Gemini vs GPT</h2>
     <div class="card glass">
-      <div id="chatBox">
-        <div class="msg bot">Halo! Ini Ran Life OS Assistant. Ada yang bisa dibantu?</div>
-      </div>
-      <div style="display: flex; gap: 10px; margin-top: 15px;">
-        <input id="aiInput" placeholder="Ketik lalu Enter..." style="margin:0" onkeydown="if(event.key==='Enter' || event.keyCode===13){event.preventDefault(); askAI();}">
+      <div style="display: flex; gap: 10px;">
+        <input id="aiInput" placeholder="Uji 2 AI sekaligus..." style="margin:0" onkeydown="if(event.key==='Enter' || event.keyCode===13){event.preventDefault(); askAI();}">
         <button onclick="askAI()" style="width: auto; padding: 0 20px;">Kirim</button>
+      </div>
+      
+      <div class="ai-split-container">
+        <div class="ai-panel">
+          <div class="ai-panel-header header-gpt">ChatGPT</div>
+          <div id="chatBoxGPT" class="ai-chat-box">
+            <div class="msg bot">Menunggu pertanyaan darimu...</div>
+          </div>
+        </div>
+        
+        <div class="ai-panel">
+          <div class="ai-panel-header header-gemini">Gemini</div>
+          <div id="chatBoxGemini" class="ai-chat-box">
+            <div class="msg bot">Siap menganalisa...</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -327,18 +347,14 @@
 
 <script>
 /* ================= DATA UTILS (Sistem Anti-Crash 🛡️) ================= */
-// Mengatasi konflik data jika memori terbaca sebagai format yang salah
 function getStorage(key, def) {
   try {
     let val = localStorage.getItem(key);
     if (!val) return def;
     let parsed = JSON.parse(val);
-    // Pastikan data Array tidak tertukar jadi Object biasa
     if (Array.isArray(def) && !Array.isArray(parsed)) return def;
     return parsed;
-  } catch(e) { 
-    return def; // Kalau data korup, reset jadi default
-  }
+  } catch(e) { return def; }
 }
 
 let todos = getStorage("ran_todos", []);
@@ -481,7 +497,7 @@ function buyTheme(id, p, s, cost) {
   }
 }
 
-/* ================= 📝 TODO (Smart Task) ================= */
+/* ================= 📝 TODO ================= */
 function renderTodo() {
   document.getElementById('todoList').innerHTML = todos.map((t, i) => `
     <div class="todo-item glass ${t.done ? 'done' : ''}" draggable="true" ondragstart="this.classList.add('dragging')" ondragend="this.classList.remove('dragging')">
@@ -610,7 +626,6 @@ function pickRandom() { let arr = document.getElementById('optInput').value.spli
 
 function saveLink() { let l = document.getElementById('linkInput').value; if(l) { document.getElementById('linksList').innerHTML += `<div class="card glass"><a href="${l}" target="_blank" style="color:var(--primary); font-weight:bold;">🔗 ${l}</a></div>`; document.getElementById('linkInput').value=""; showToast("Link disave"); playFeedback('success'); } }
 
-// SECURITY BASIC: Simple Encryption + Debounce
 function encrypt(str) { return btoa(encodeURIComponent(str)); }
 function decrypt(str) { try { return decodeURIComponent(atob(str)); } catch(e) { return str; } }
 
@@ -624,16 +639,55 @@ document.getElementById('secretArea').addEventListener('input', (e) => {
   }, 1000); 
 });
 
-/* ================= AI CHAT ================= */
-function askAI() {
-  const val = document.getElementById('aiInput').value; if(!val) return;
-  const cb = document.getElementById('chatBox');
-  cb.innerHTML += `<div class="msg user">${val}</div>`; document.getElementById('aiInput').value = ""; cb.scrollTop = cb.scrollHeight;
-  setTimeout(() => {
-    let reply = "Info masuk! Untuk bantuan lebih lanjut, pakai fitur Smart Task.";
-    if(val.toLowerCase().includes("halo")) reply = "Halo master! Jangan lupa kelarin To-Do buat dapet Koin.";
-    cb.innerHTML += `<div class="msg bot">${reply}</div>`; cb.scrollTop = cb.scrollHeight; playFeedback('success');
-  }, 600);
+/* ================= 🤖 AI CHAT COMPARISON (Vercel Backend) ================= */
+async function askAI() {
+  const inputEl = document.getElementById('aiInput');
+  const val = inputEl.value.trim(); 
+  if(!val) return;
+
+  const cbGpt = document.getElementById('chatBoxGPT');
+  const cbGemini = document.getElementById('chatBoxGemini');
+  
+  cbGpt.innerHTML += `<div class="msg user">${val}</div>`; 
+  cbGemini.innerHTML += `<div class="msg user">${val}</div>`; 
+  
+  inputEl.value = ""; 
+  cbGpt.scrollTop = cbGpt.scrollHeight;
+  cbGemini.scrollTop = cbGemini.scrollHeight;
+
+  const loadingId = Date.now();
+  cbGpt.innerHTML += `<div class="msg bot" id="load-gpt-${loadingId}">Berpikir... ⏳</div>`;
+  cbGemini.innerHTML += `<div class="msg bot" id="load-gem-${loadingId}">Menganalisa... ⏳</div>`;
+
+  try {
+    const response = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: val })
+    });
+
+    const data = await response.json();
+
+    document.getElementById(`load-gpt-${loadingId}`)?.remove();
+    document.getElementById(`load-gem-${loadingId}`)?.remove();
+
+    if (response.ok) {
+      cbGpt.innerHTML += `<div class="msg bot">${data.chatgpt}</div>`;
+      cbGemini.innerHTML += `<div class="msg bot">${data.gemini}</div>`;
+    } else {
+      showToast("Gagal menghubungi AI.");
+      cbGpt.innerHTML += `<div class="msg bot" style="color:#ef4444;">Koneksi gagal. Cek Vercel Logs.</div>`;
+      cbGemini.innerHTML += `<div class="msg bot" style="color:#ef4444;">Koneksi gagal. Cek Vercel Logs.</div>`;
+    }
+  } catch (error) {
+    document.getElementById(`load-gpt-${loadingId}`)?.remove();
+    document.getElementById(`load-gem-${loadingId}`)?.remove();
+    showToast("Server error atau sedang offline.");
+  }
+
+  cbGpt.scrollTop = cbGpt.scrollHeight;
+  cbGemini.scrollTop = cbGemini.scrollHeight;
+  playFeedback('success');
 }
 
 /* ================= BACKUP & RESTORE ================= */

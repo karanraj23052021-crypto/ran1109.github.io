@@ -3,216 +3,237 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ran Super App Ultimate Pro</title>
+  <title>Ran Super App - Edisi Startup Dewa</title>
   
   <link rel="manifest" href="manifest.json">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <style>
     :root {
-      --bg: #0f172a;
-      --card: rgba(30, 41, 59, 0.65);
-      --primary: #38bdf8;
+      --bg: #0b0f19;
+      --card: rgba(17, 25, 40, 0.75);
+      --primary: #00f2fe;
+      --secondary: #4facfe;
       --text: #f8fafc;
-      --glass-border: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glow: 0 0 20px rgba(0, 242, 254, 0.4);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; transition: background 0.4s ease; overflow-x: hidden; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; overflow-x: hidden; transition: background 0.5s ease; }
     
-    /* Smooth Scrollbar */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
     
-    .app-container { width: 100%; max-width: 480px; padding: 90px 20px 100px 20px; position: relative; }
-    
-    /* 💎 UI PREMIUM: Glassmorphism Hebat & Transisi */
-    .glass {
-      background: var(--card);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-    }
+    .app-container { width: 100%; max-width: 500px; padding: 100px 20px 110px 20px; position: relative; }
 
-    .page { display: none; opacity: 0; transform: scale(0.98) translateY(15px); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    .page.active { display: block; opacity: 1; transform: scale(1) translateY(0); animation: slideIn 0.4s forwards; }
-    @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-    h2 { font-size: 1.5rem; color: var(--primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; text-shadow: 0 2px 10px rgba(56, 189, 248, 0.3); }
-    h3 { font-size: 1.1rem; margin-top: 15px; margin-bottom: 10px; color: #e2e8f0; }
+    /* 🔐 GLOBAL APP LOCK */
+    #globalLock { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 15, 25, 0.95); backdrop-filter: blur(20px); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.5s; }
+    #globalLock input { text-align: center; font-size: 2rem; letter-spacing: 10px; padding: 20px; border-radius: 20px; width: 80%; max-width: 300px; margin-bottom: 20px; }
     
-    .card { padding: 18px; border-radius: 20px; margin-bottom: 16px; transition: transform 0.2s, box-shadow 0.2s; }
-    .card:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.2); }
+    /* 💎 GLASSMORPHISM PREMIUM */
+    .glass { background: var(--card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4); }
+    
+    .page { display: none; opacity: 0; transform: translateY(20px); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .page.active { display: block; opacity: 1; transform: translateY(0); animation: floatUp 0.5s forwards; }
+    @keyframes floatUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    h2 { font-size: 1.6rem; color: transparent; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -0.5px; }
+    h3 { font-size: 1.1rem; margin-top: 15px; margin-bottom: 10px; color: #e2e8f0; font-weight: 600; }
+    
+    .card { padding: 20px; border-radius: 24px; margin-bottom: 16px; transition: 0.3s; }
+    .card:hover { transform: translateY(-3px); box-shadow: var(--glow); border-color: rgba(255,255,255,0.15); }
     .center { text-align: center; }
     
-    input, textarea, select { width: 100%; padding: 14px; border-radius: 14px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.25); color: white; margin-bottom: 12px; outline: none; transition: all 0.3s ease; font-family: inherit; }
-    input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); background: rgba(0,0,0,0.4); }
+    input, textarea, select { width: 100%; padding: 15px; border-radius: 16px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: white; margin-bottom: 12px; outline: none; transition: 0.3s; font-family: inherit; font-size: 0.95rem; }
+    input:focus, textarea:focus { border-color: var(--primary); box-shadow: var(--glow); background: rgba(0,0,0,0.5); }
     
-    /* Animasi Tombol Bouncy */
-    button { padding: 14px; border: none; border-radius: 14px; background: var(--primary); color: #0f172a; font-weight: 700; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); width: 100%; font-family: inherit; }
-    button:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(56, 189, 248, 0.4); }
-    button:active { transform: scale(0.92); }
+    button { padding: 15px; border: none; border-radius: 16px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; font-weight: 700; cursor: pointer; transition: 0.2s; width: 100%; font-family: inherit; font-size: 1rem; text-shadow: 0 1px 3px rgba(0,0,0,0.3); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    button:hover { filter: brightness(1.15); transform: translateY(-2px); box-shadow: var(--glow); }
+    button:active { transform: scale(0.95); }
 
-    /* 🏆 GAMIFIKASI HEADER (Always on top) */
-    .gami-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; padding: 15px 20px; z-index: 100; display: flex; align-items: center; justify-content: space-between; border-radius: 0 0 20px 20px; border-top: none; }
-    .level-badge { font-size: 1.8rem; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5)); animation: float 3s ease-in-out infinite; }
+    /* 🎮 GAMIFIKASI & SHOP HEADER */
+    .gami-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; padding: 15px 20px; z-index: 1000; display: flex; align-items: center; border-radius: 0 0 24px 24px; border-top: none; }
+    .level-badge { font-size: 2rem; filter: drop-shadow(0 0 10px var(--primary)); animation: pulseGlow 2s infinite; }
+    @keyframes pulseGlow { 0%, 100% { filter: drop-shadow(0 0 5px var(--primary)); transform: scale(1); } 50% { filter: drop-shadow(0 0 15px var(--secondary)); transform: scale(1.05); } }
     .xp-container { flex: 1; margin-left: 15px; }
-    .xp-info { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; color: #e2e8f0; }
-    .xp-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.5); border-radius: 10px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); }
-    .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #a855f7); width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    .xp-info { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: bold; margin-bottom: 6px; }
+    .coin-display { background: rgba(255, 215, 0, 0.2); color: #ffd700; padding: 3px 10px; border-radius: 12px; border: 1px solid rgba(255, 215, 0, 0.4); font-size: 0.8rem; }
+    .xp-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.6); border-radius: 10px; overflow: hidden; }
+    .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: 0%; transition: width 0.5s; box-shadow: var(--glow); }
 
-    /* Todo Item */
-    .todo-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 14px; margin-bottom: 10px; cursor: grab; border: 1px solid transparent; transition: all 0.3s; }
-    .todo-item:hover { background: rgba(255,255,255,0.08); }
-    .todo-item.dragging { opacity: 0.5; border: 2px dashed var(--primary); transform: scale(0.98); }
-    .todo-item.done span.text { text-decoration: line-through; opacity: 0.5; }
-    .checkbox { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.2s; }
-    .todo-item.done .checkbox { background: var(--primary); color: #0f172a; }
-
-    /* Habit Item */
-    .streak-badge { background: linear-gradient(45deg, #fbbf24, #f59e0b); color: #000; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3); }
+    /* Todo & Drag */
+    .todo-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 16px; margin-bottom: 10px; cursor: grab; transition: 0.3s; border: 1px solid rgba(255,255,255,0.02); }
+    .todo-item:hover { background: rgba(255,255,255,0.08); border-color: var(--primary); }
+    .todo-item.dragging { opacity: 0.5; border: 2px dashed var(--primary); }
+    .todo-item.done span.text { text-decoration: line-through; opacity: 0.4; }
+    .checkbox { width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.2s; }
+    .todo-item.done .checkbox { background: var(--primary); color: #000; box-shadow: var(--glow); }
 
     /* AI Chat */
-    #chatBox { height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 5px; }
-    .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 0.95rem; line-height: 1.4; animation: popIn 0.3s ease; }
-    @keyframes popIn { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
-    .msg.bot { background: rgba(255,255,255,0.1); align-self: flex-start; border-bottom-left-radius: 4px; }
-    .msg.user { background: var(--primary); color: #0f172a; align-self: flex-end; border-bottom-right-radius: 4px; font-weight: 500; }
+    #chatBox { height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 5px; }
+    .msg { padding: 12px 18px; border-radius: 20px; max-width: 85%; font-size: 0.95rem; line-height: 1.5; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    @keyframes popIn { 0% { opacity: 0; transform: scale(0.8) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+    .msg.bot { background: rgba(255,255,255,0.08); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
+    .msg.user { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #000; align-self: flex-end; border-bottom-right-radius: 4px; font-weight: 600; }
 
-    /* Taskbar Bawah */
-    .nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 440px; padding: 12px; border-radius: 25px; display: flex; gap: 8px; overflow-x: auto; z-index: 100; scroll-behavior: smooth; }
+    /* TASKBAR */
+    .nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 30px); max-width: 460px; padding: 12px; border-radius: 30px; display: flex; gap: 10px; overflow-x: auto; z-index: 1000; scroll-behavior: smooth; border: 1px solid var(--glass-border); background: rgba(11, 15, 25, 0.85); box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
     .nav::-webkit-scrollbar { display: none; }
-    .nav button { flex: 0 0 auto; width: 50px; height: 50px; padding: 0; background: transparent; color: #94a3b8; font-size: 1.4rem; border-radius: 18px; transition: all 0.3s; }
-    .nav button:hover { background: rgba(255,255,255,0.1); color: white; transform: translateY(-3px); }
-    .nav button.active-btn { background: rgba(255,255,255,0.15); border: 1px solid var(--primary); color: var(--primary); transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-    
-    a { color: var(--primary); text-decoration: none; word-break: break-all; }
+    .nav button { flex: 0 0 auto; width: 55px; height: 55px; padding: 0; background: transparent; color: #64748b; font-size: 1.5rem; border-radius: 20px; transition: 0.3s; box-shadow: none; }
+    .nav button:hover { background: rgba(255,255,255,0.05); color: var(--primary); transform: translateY(-3px); }
+    .nav button.active-btn { background: rgba(255,255,255,0.1); border: 1px solid var(--primary); color: var(--primary); transform: translateY(-5px); box-shadow: var(--glow); }
+
+    /* Focus Mode Lock */
+    body.focus-active .nav, body.focus-active .gami-header { display: none !important; }
+    body.focus-active { background: #000; }
+    .pomodoro-display { font-size: 5rem; font-weight: 800; color: var(--primary); text-shadow: var(--glow); margin: 30px 0; font-variant-numeric: tabular-nums; }
+
+    /* Grid for Shop */
+    .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .shop-item { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 16px; padding: 15px; text-align: center; }
+
+    /* Journal Mood */
+    .mood-btn { background: transparent; font-size: 2rem; padding: 5px; box-shadow: none; width: auto; filter: grayscale(1); transition: 0.2s; }
+    .mood-btn.selected { filter: grayscale(0); transform: scale(1.3); }
+
   </style>
 </head>
 <body>
 
-<div class="gami-header glass">
-  <div class="level-badge" id="uiBadge">🥉</div>
+<div id="globalLock">
+  <h1 style="color: var(--primary); text-shadow: var(--glow); margin-bottom: 30px; font-weight: 800;">RAN SUPER APP</h1>
+  <p style="color: #94a3b8; margin-bottom: 10px;">Security Check (PIN: 1234)</p>
+  <input type="password" id="appPin" placeholder="****" onkeyup="if(this.value.length===4) checkGlobalLock()">
+  <button onclick="checkGlobalLock()" style="width: 80%; max-width: 300px;">Masuk (Unlock)</button>
+</div>
+
+<div class="gami-header glass" id="topHeader">
+  <div class="level-badge" id="uiBadge">🚀</div>
   <div class="xp-container">
     <div class="xp-info">
-      <span>Lv <span id="uiLevel">1</span> (<span id="uiTitle">Pemula</span>)</span>
-      <span id="uiXP">0 / 100 XP</span>
+      <span>Lvl <span id="uiLevel">1</span> <span style="color:var(--primary); font-size:0.75rem" id="uiTitle">(Newbie)</span></span>
+      <div>
+        <span class="coin-display">🪙 <span id="uiCoin">0</span></span>
+        <span style="color:#94a3b8; margin-left:8px;" id="uiXP">0/100 XP</span>
+      </div>
     </div>
-    <div class="xp-bar-bg">
-      <div class="xp-bar-fill" id="uiXPBar"></div>
-    </div>
+    <div class="xp-bar-bg"><div class="xp-bar-fill" id="uiXPBar"></div></div>
   </div>
 </div>
 
 <div class="app-container">
 
   <div id="todo" class="page active">
-    <h2>📝 Task Premium</h2>
-    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-      <input id="taskInput" placeholder="Apa fokusmu hari ini? (+10 XP)" style="margin:0">
-      <button onclick="addTodo()" style="width: auto; padding: 0 20px;">Tambah</button>
+    <h2>📝 Smart Task</h2>
+    <div class="card glass" style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; gap: 8px;">
+        <input id="taskInput" placeholder="Tulis / Ucapkan tugas..." style="margin:0">
+        <button onclick="startVoiceToTask()" id="micBtn" style="width: 55px; background: rgba(255,255,255,0.1); font-size:1.2rem;">🎙️</button>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button onclick="addTodo()">+ Tambah (10 XP)</button>
+        <button onclick="aiSmartTask()" style="background: linear-gradient(135deg, #a855f7, #db2777);">🧠 Pecah via AI</button>
+      </div>
     </div>
     <div id="todoList"></div>
   </div>
 
-  <div id="cal" class="page">
-    <h2>📅 Kalender Pintar</h2>
+  <div id="goals" class="page">
+    <h2>🎯 Goal System</h2>
+    <p style="font-size: 0.85rem; color:#94a3b8; margin-bottom:15px;">Tulis target hidupmu, pecah jadi tugas harian.</p>
     <div class="card glass">
-      <input type="date" id="dateInput">
-      <input id="eventInput" placeholder="Nama Kegiatan / Event">
-      <button onclick="saveEvent()">Simpan Jadwal</button>
+      <input id="goalInput" placeholder="Contoh: Jago Coding dalam 1 Bulan">
+      <button onclick="addGoal()">Set Goal</button>
     </div>
-    <h3>Jadwal Mendatang</h3>
-    <div id="eventsList"></div>
+    <div id="goalList"></div>
   </div>
 
-  <div id="rem" class="page">
-    <h2>⏰ Auto Reminder</h2>
-    <div class="card glass center">
-      <p style="margin-bottom: 15px; color: #cbd5e1;">Biar nggak lupa tugas pentingmu.</p>
-      <input type="time" id="remTime">
-      <button onclick="setRem()">Set Alarm</button>
-    </div>
-  </div>
-
-  <div id="music" class="page center">
-    <h2>🎧 Focus Mode</h2>
-    <p style="margin-bottom: 20px; color: #cbd5e1;">Suara ambien biar fokus tingkat dewa.</p>
+  <div id="focus" class="page center">
+    <h2>⏳ Focus Mode</h2>
+    <p style="color:#94a3b8; margin-bottom: 20px;">Mode serius. UI lain akan dikunci!</p>
     <div class="card glass">
-      <button onclick="playMusic('lofi')" style="margin-bottom: 12px; background: #6366f1; color: white;">🎧 Putar Lofi</button>
-      <button onclick="playMusic('rain')" style="margin-bottom: 12px; background: #0ea5e9; color: white;">🌧️ Putar Hujan</button>
-      <button onclick="stopMusic()" style="background: #ef4444; color: white;">🛑 Hentikan Audio</button>
+      <div class="pomodoro-display" id="timerDisplay">25:00</div>
+      <button onclick="togglePomodoro()" id="pomodoroBtn" style="background: #10b981; margin-bottom:15px;">▶ Mulai Fokus</button>
+      
+      <h3 style="margin-top: 20px; font-size:0.9rem;">Backsound Fokus:</h3>
+      <div style="display: flex; gap:10px;">
+        <button onclick="playMusic('lofi')" style="background: rgba(255,255,255,0.1);">🎧 Lofi</button>
+        <button onclick="playMusic('rain')" style="background: rgba(255,255,255,0.1);">🌧️ Hujan</button>
+        <button onclick="stopMusic()" style="background: rgba(239,68,68,0.2); color:#ef4444;">🛑 Off</button>
+      </div>
     </div>
     <audio id="audioElement" loop></audio>
   </div>
 
-  <div id="rand" class="page center">
-    <h2>🎲 Gacha Keputusan</h2>
-    <p style="margin-bottom: 15px; color: #cbd5e1;">Bingung? Biar app yang milih (pakai koma).</p>
-    <input id="optInput" placeholder="Mie Ayam, Nasi Goreng, Burger">
-    <button onclick="pickRandom()">Putar Gacha!</button>
-    <div class="card glass" style="margin-top: 20px; padding: 40px 10px;">
-      <h3 id="randResult" style="margin: 0; font-size: 1.8rem; color: var(--primary);">- Hasil -</h3>
-    </div>
-  </div>
-
-  <div id="book" class="page">
-    <h2>📌 Web Favorit</h2>
-    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-      <input id="linkInput" placeholder="https://..." style="margin:0">
-      <button onclick="saveLink()" style="width: auto; padding: 0 20px;">Simpan</button>
-    </div>
-    <div id="linksList"></div>
-  </div>
-
-  <div id="file" class="page">
-    <h2>📁 Info Berkas</h2>
+  <div id="journal" class="page">
+    <h2>📖 Daily Journal</h2>
     <div class="card glass center">
-      <input type="file" onchange="checkFile(event)" style="background: transparent; border: 2px dashed rgba(255,255,255,0.3);">
-      <p id="fileName" style="margin-top: 15px; color: var(--primary); font-weight: bold; word-break: break-all;"></p>
+      <h3 style="margin-top:0;">Gimana mood-mu hari ini?</h3>
+      <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 15px;" id="moodContainer">
+        <button class="mood-btn" onclick="selectMood('😭')">😭</button>
+        <button class="mood-btn" onclick="selectMood('😔')">😔</button>
+        <button class="mood-btn" onclick="selectMood('😐')">😐</button>
+        <button class="mood-btn" onclick="selectMood('😊')">😊</button>
+        <button class="mood-btn" onclick="selectMood('🤩')">🤩</button>
+      </div>
+      <textarea id="journalInput" placeholder="Ceritain harimu di sini..." style="height: 100px;"></textarea>
+      <button onclick="saveJournal()">Simpan Jurnal</button>
     </div>
-  </div>
-
-  <div id="lock" class="page">
-    <h2>🔐 Brankas Rahasia</h2>
-    <div class="card glass" id="lockScreen">
-      <p style="margin-bottom: 10px;">Masukkan PIN (Bawaan: 1234)</p>
-      <input type="password" id="passInput" placeholder="****" style="text-align: center; letter-spacing: 5px; font-size: 1.2rem;">
-      <button onclick="unlockNotes()">Buka Brankas</button>
-    </div>
-    <textarea id="secretArea" class="glass" style="display:none; height: 350px;" placeholder="Tulis rahasiamu di sini... Otomatis tersimpan ke sistem lokal!"></textarea>
+    <div id="journalList"></div>
   </div>
 
   <div id="stats" class="page">
-    <h2>📊 Analitik & Statistik</h2>
+    <h2>📊 Analisis AI & Stats</h2>
+    
+    <div class="card glass" style="border: 1px solid var(--primary);">
+      <h3 style="margin-top:0; color: var(--primary);">🤖 Mini AI Insight:</h3>
+      <p id="aiInsight" style="font-size: 0.95rem; line-height: 1.5; font-style: italic;">Memuat analisis data dirimu...</p>
+    </div>
+
     <div class="card glass">
       <canvas id="statChart"></canvas>
     </div>
     <div class="card glass center">
-      <p style="color: #cbd5e1;">Total Misi Selesai</p>
-      <h1 id="doneCount" style="font-size: 3.5rem; color: var(--primary); text-shadow: 0 0 20px rgba(56,189,248,0.4);">0</h1>
+      <p style="color: #94a3b8;">Total Misi Selesai</p>
+      <h1 id="doneCount" style="font-size: 3.5rem; color: var(--primary); text-shadow: var(--glow);">0</h1>
+    </div>
+  </div>
+
+  <div id="cal" class="page">
+    <h2>📅 Kalender</h2>
+    <div class="card glass">
+      <input type="date" id="dateInput">
+      <input id="eventInput" placeholder="Event">
+      <button onclick="saveEvent()">Simpan Event</button>
+    </div>
+    <div id="eventsList"></div>
+  </div>
+
+  <div id="rem" class="page center">
+    <h2>⏰ Auto Reminder</h2>
+    <div class="card glass">
+      <input type="time" id="remTime">
+      <button onclick="setRem()">Set Alarm Notifikasi</button>
     </div>
   </div>
 
   <div id="habit" class="page">
-    <h2>🔥 Tracker Kebiasaan</h2>
-    <p style="font-size: 0.85rem; color: #cbd5e1; margin-bottom: 15px;">Bangun habit bagus, dapat +5 XP tiap ceklis!</p>
+    <h2>🔥 Habit Tracker</h2>
     <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-      <input id="habitInput" placeholder="Olahraga, Minum Air..." style="margin:0">
+      <input id="habitInput" placeholder="Cth: Olahraga (5 XP)" style="margin:0">
       <button onclick="addHabit()" style="width: auto; padding: 0 20px;">+</button>
     </div>
     <div id="habitList"></div>
   </div>
 
   <div id="ai" class="page">
-    <h2>🤖 Ran AI (Virtual)</h2>
+    <h2>🤖 Ran Virtual</h2>
     <div class="card glass">
       <div id="chatBox">
-        <div class="msg bot">Halo master! Aku siap menemani produktivitasmu hari ini. Tanya apa saja!</div>
+        <div class="msg bot">Halo! Aku asisten Super App-mu. Ada yang bisa dibantu?</div>
       </div>
       <div style="display: flex; gap: 10px; margin-top: 15px;">
         <input id="aiInput" placeholder="Ketik pesan..." style="margin:0" onkeypress="if(event.key==='Enter') askAI()">
@@ -221,80 +242,127 @@
     </div>
   </div>
 
-  <div id="settings" class="page">
-    <h2>⚙️ Pengaturan & Cloud</h2>
+  <div id="tools" class="page">
+    <h2>🛠️ Tools Canggih</h2>
     
     <div class="card glass">
-      <h3>☁️ Sinkronisasi Cloud (Firebase)</h3>
-      <p style="font-size: 0.85rem; color: #cbd5e1; margin-bottom: 15px;">Login untuk simpan data ke awan dan akses di device lain (Level Dewa).</p>
-      <input type="email" id="cloudEmail" placeholder="Email Akun">
-      <input type="password" id="cloudPass" placeholder="Password">
-      <button onclick="fakeCloudLogin()" style="background: #10b981; color: white;">Login ke Cloud</button>
-      <p style="font-size: 0.75rem; color: #64748b; margin-top: 10px; text-align: center;">*Fitur UI disiapkan. Untuk fungsi asli, integrasikan Firebase Config di source code.</p>
+      <h3>🔐 Brankas Rahasia (Auto-Save)</h3>
+      <textarea id="secretArea" placeholder="Ketik rahasia... otomatis tersimpan aman di HP ini." style="height: 150px;" onkeyup="saveSecret()"></textarea>
     </div>
 
     <div class="card glass">
-      <h3>🎨 Custom Tema Premium</h3>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <button onclick="changeTheme('#38bdf8', '#0f172a')" style="background:#38bdf8; color:white;">Neon Blue</button>
-        <button onclick="changeTheme('#a855f7', '#1e1b4b')" style="background:#a855f7; color:white;">Deep Purple</button>
-        <button onclick="changeTheme('#10b981', '#064e3b')" style="background:#10b981; color:white;">Emerald</button>
-        <button onclick="changeTheme('#f43f5e', '#4c0519')" style="background:#f43f5e; color:white;">Ruby Red</button>
+      <h3>🎲 Gacha Picker</h3>
+      <input id="optInput" placeholder="Nasi, Mie, Ayam (Pemisah koma)">
+      <button onclick="pickRandom()">Putar Gacha</button>
+      <h3 id="randResult" style="text-align:center; color:var(--primary); margin-top:15px;">-</h3>
+    </div>
+
+    <div class="card glass">
+      <h3>📌 Bookmark & 📁 Info File</h3>
+      <input id="linkInput" placeholder="https://">
+      <button onclick="saveLink()" style="margin-bottom:15px;">Simpan Link</button>
+      <div id="linksList" style="margin-bottom: 15px;"></div>
+      <input type="file" onchange="checkFile(event)">
+      <p id="fileName" style="color:var(--primary); font-size:0.8rem; word-break:break-all;"></p>
+    </div>
+  </div>
+
+  <div id="settings" class="page">
+    <h2>⚙️ Pengaturan & Toko</h2>
+    
+    <div class="card glass">
+      <h3 style="margin-top:0;">🛒 Upgrade Game (Toko Tema)</h3>
+      <p style="font-size:0.85rem; color:#94a3b8; margin-bottom:15px;">Gunakan Koin 🪙 untuk beli tema eksklusif.</p>
+      <div class="shop-grid">
+        <div class="shop-item">
+          <div style="width:100%; height:40px; background:linear-gradient(90deg, #00f2fe, #4facfe); border-radius:8px; margin-bottom:10px;"></div>
+          <p>Cyber Blue</p>
+          <button onclick="buyTheme('cyber', '#00f2fe', '#4facfe', 0)" style="padding:8px; font-size:0.8rem; margin-top:5px;">Bawaan (Gratis)</button>
+        </div>
+        <div class="shop-item">
+          <div style="width:100%; height:40px; background:linear-gradient(90deg, #f12711, #f5af19); border-radius:8px; margin-bottom:10px;"></div>
+          <p>Magma 🔥</p>
+          <button onclick="buyTheme('magma', '#f12711', '#f5af19', 50)" style="padding:8px; font-size:0.8rem; margin-top:5px; background:rgba(255,215,0,0.2); color:#ffd700;">🪙 50 Koin</button>
+        </div>
+        <div class="shop-item">
+          <div style="width:100%; height:40px; background:linear-gradient(90deg, #11998e, #38ef7d); border-radius:8px; margin-bottom:10px;"></div>
+          <p>Matrix 💻</p>
+          <button onclick="buyTheme('matrix', '#38ef7d', '#11998e', 100)" style="padding:8px; font-size:0.8rem; margin-top:5px; background:rgba(255,215,0,0.2); color:#ffd700;">🪙 100 Koin</button>
+        </div>
+        <div class="shop-item">
+          <div style="width:100%; height:40px; background:linear-gradient(90deg, #c31432, #240b36); border-radius:8px; margin-bottom:10px;"></div>
+          <p>Vampire 🦇</p>
+          <button onclick="buyTheme('vampire', '#c31432', '#240b36', 200)" style="padding:8px; font-size:0.8rem; margin-top:5px; background:rgba(255,215,0,0.2); color:#ffd700;">🪙 200 Koin</button>
+        </div>
       </div>
     </div>
-    
-    <button onclick="exportData()" class="glass" style="background: transparent; color: var(--text); border: 1px solid var(--primary);">📥 Download Backup Data (JSON)</button>
+
+    <div class="card glass">
+      <h3>📦 Backup & Restore Data</h3>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:15px;">Aman walaupun ganti HP. Export ke JSON, lalu Import lagi.</p>
+      <button onclick="exportJSON()" style="background:transparent; border:1px solid var(--primary); margin-bottom:10px;">📤 Export Data (Backup)</button>
+      
+      <div style="position: relative; overflow: hidden; display: inline-block; width: 100%;">
+        <button style="background:rgba(16, 185, 129, 0.2); color:#10b981; border:1px solid #10b981;">📥 Import Data (Restore)</button>
+        <input type="file" accept=".json" onchange="importJSON(event)" style="font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer;">
+      </div>
+    </div>
   </div>
 
 </div>
 
 <div class="nav glass" id="taskbar">
   <button class="nav-btn active-btn" onclick="show('todo', this)" title="To-Do">📝</button>
+  <button class="nav-btn" onclick="show('goals', this)" title="Goals">🎯</button>
+  <button class="nav-btn" onclick="show('focus', this)" title="Focus">⏳</button>
+  <button class="nav-btn" onclick="show('journal', this)" title="Journal">📖</button>
+  <button class="nav-btn" onclick="show('habit', this)" title="Habit">🔥</button>
+  <button class="nav-btn" onclick="show('stats', this)" title="Stats">📊</button>
   <button class="nav-btn" onclick="show('cal', this)" title="Calendar">📅</button>
   <button class="nav-btn" onclick="show('rem', this)" title="Reminder">⏰</button>
-  <button class="nav-btn" onclick="show('music', this)" title="Music">🎧</button>
-  <button class="nav-btn" onclick="show('rand', this)" title="Random">🎲</button>
-  <button class="nav-btn" onclick="show('book', this)" title="Bookmark">📌</button>
-  <button class="nav-btn" onclick="show('file', this)" title="File">📁</button>
-  <button class="nav-btn" onclick="show('lock', this)" title="Notes">🔐</button>
-  <button class="nav-btn" onclick="show('stats', this)" title="Stats">📊</button>
-  <button class="nav-btn" onclick="show('habit', this)" title="Habit">🔥</button>
+  <button class="nav-btn" onclick="show('tools', this)" title="Tools">🛠️</button>
   <button class="nav-btn" onclick="show('ai', this)" title="AI Chat">🤖</button>
   <button class="nav-btn" onclick="show('settings', this)" title="Settings">⚙️</button>
 </div>
 
 <script>
-/* ================= AUDIO EFFECTS (Animasi & Suara) ================= */
-// Menggunakan URL Sound Effect Publik yang ringan
+/* ================= AUDIO & SFX ================= */
 const sfxClick = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
 const sfxSuccess = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
 const sfxLevelUp = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
-
 function playSFX(type) {
   try {
     if(type === 'click') { sfxClick.currentTime = 0; sfxClick.play(); }
     if(type === 'success') { sfxSuccess.currentTime = 0; sfxSuccess.play(); }
     if(type === 'levelup') { sfxLevelUp.currentTime = 0; sfxLevelUp.play(); }
-  } catch(e) {} // Abaikan error jika browser block autoplay sebelum interaksi
+  } catch(e) {}
+}
+document.addEventListener('click', (e) => { if(e.target.closest('button') || e.target.closest('.nav-btn')) playSFX('click'); });
+
+/* ================= 🔐 APP LOCK ================= */
+function checkGlobalLock() {
+  const input = document.getElementById('appPin').value;
+  const savedPin = localStorage.getItem('ran_pin') || '1234';
+  if(input === savedPin) {
+    document.getElementById('globalLock').style.opacity = '0';
+    setTimeout(() => document.getElementById('globalLock').style.display = 'none', 500);
+    playSFX('success');
+  } else if (input.length >= 4) {
+    alert("PIN Salah bos!");
+  }
 }
 
-// Tambah suara klik ke semua tombol dan navigasi
-document.addEventListener('click', (e) => {
-  if(e.target.closest('button') || e.target.closest('.nav-btn')) {
-    playSFX('click');
-  }
-});
-
-
-/* ================= GAMIFIKASI (XP & Leveling) ================= */
+/* ================= 🎮 SYSTEM XP & COIN ================= */
 let userXP = parseInt(localStorage.getItem('ran_xp')) || 0;
+let userCoins = parseInt(localStorage.getItem('ran_coins')) || 0;
+let unlockedThemes = JSON.parse(localStorage.getItem('ran_themes')) || ['cyber'];
 
 function getLevelInfo() {
   let lvl = Math.floor(userXP / 100) + 1;
-  let title = "Pemula"; let badge = "🥉";
-  if(lvl >= 5) { title = "Pro"; badge = "🥈"; }
-  if(lvl >= 10) { title = "Master"; badge = "🥇"; }
-  if(lvl >= 20) { title = "Legend"; badge = "💎"; }
+  let title = "Newbie"; let badge = "🚀";
+  if(lvl >= 5) { title = "Hustler"; badge = "⚡"; }
+  if(lvl >= 10) { title = "Pro"; badge = "🔥"; }
+  if(lvl >= 25) { title = "CEO"; badge = "💼"; }
   if(lvl >= 50) { title = "Dewa"; badge = "👑"; }
   return { lvl, title, badge };
 }
@@ -302,67 +370,74 @@ function getLevelInfo() {
 function updateGamificationUI() {
   let info = getLevelInfo();
   document.getElementById('uiLevel').innerText = info.lvl;
-  document.getElementById('uiTitle').innerText = info.title;
+  document.getElementById('uiTitle').innerText = `(${info.title})`;
   document.getElementById('uiBadge').innerText = info.badge;
-  
-  let currentTierXP = userXP % 100;
-  document.getElementById('uiXP').innerText = `${currentTierXP} / 100 XP`;
-  document.getElementById('uiXPBar').style.width = `${currentTierXP}%`;
+  document.getElementById('uiCoin').innerText = userCoins;
+  let currXP = userXP % 100;
+  document.getElementById('uiXP').innerText = `${currXP}/100 XP`;
+  document.getElementById('uiXPBar').style.width = `${currXP}%`;
 }
 
-function addXP(amount) {
+function addRewards(xpAmt) {
   let oldLvl = getLevelInfo().lvl;
-  userXP += amount;
+  userXP += xpAmt;
+  userCoins += Math.floor(xpAmt / 2); // 10 XP dapet 5 Koin
   localStorage.setItem('ran_xp', userXP);
+  localStorage.setItem('ran_coins', userCoins);
   
-  let newLvl = getLevelInfo().lvl;
   updateGamificationUI();
-  
-  if(newLvl > oldLvl) {
+  if(getLevelInfo().lvl > oldLvl) {
     playSFX('levelup');
-    // Animasi Confetti Super Meriah!
-    confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, zIndex: 9999 });
-    setTimeout(() => alert(`🎉 GOKIL! Kamu naik ke Level ${newLvl}! Terus pertahankan!`), 500);
+    confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }, zIndex: 99999 });
+    alert(`🎉 NAIK LEVEL DEWA! Level kamu sekarang ${getLevelInfo().lvl}`);
   } else {
     playSFX('success');
-    // Animasi Confetti Kecil pas selesai tugas
-    confetti({ particleCount: 30, spread: 40, origin: { y: 0.8 }, zIndex: 9999 });
+    confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 }, zIndex: 99999 });
   }
 }
-// Init UI XP
 updateGamificationUI();
-
 
 /* ================= NAVIGATION & THEME ================= */
 function show(pageId, btn) {
-  document.querySelectorAll('.page').forEach(x => {
-    x.classList.remove('active');
-    // Sedikit delay biar animasi keluar jalan, tapi untuk simpel langsung swap class active
-  });
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
   document.getElementById(pageId).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-btn'));
   if(btn) btn.classList.add('active-btn');
-  
-  if(pageId === 'stats') updateStats();
+  if(pageId === 'stats') updateStatsAndAI();
 }
 
-function changeTheme(primary, bg) {
+function applyTheme(primary, secondary) {
   document.documentElement.style.setProperty('--primary', primary);
-  document.documentElement.style.setProperty('--bg', bg);
-  localStorage.setItem('ran_theme_color', primary);
-  localStorage.setItem('ran_theme_bg', bg);
-  if(chartInstance) updateStats();
+  document.documentElement.style.setProperty('--secondary', secondary);
+  if(chartInstance) updateStatsAndAI();
 }
-if(localStorage.getItem('ran_theme_color')) {
-  changeTheme(localStorage.getItem('ran_theme_color'), localStorage.getItem('ran_theme_bg'));
+if(localStorage.getItem('theme_p')) applyTheme(localStorage.getItem('theme_p'), localStorage.getItem('theme_s'));
+
+function buyTheme(id, p, s, cost) {
+  if(unlockedThemes.includes(id)) {
+    applyTheme(p, s);
+    localStorage.setItem('theme_p', p); localStorage.setItem('theme_s', s);
+    alert("Tema diaktifkan!");
+  } else {
+    if(userCoins >= cost) {
+      userCoins -= cost; localStorage.setItem('ran_coins', userCoins);
+      unlockedThemes.push(id); localStorage.setItem('ran_themes', JSON.stringify(unlockedThemes));
+      applyTheme(p, s);
+      localStorage.setItem('theme_p', p); localStorage.setItem('theme_s', s);
+      updateGamificationUI();
+      playSFX('levelup');
+      alert("🎉 Berhasil beli tema baru!");
+    } else {
+      alert(`Koin kurang! Butuh ${cost} Koin.`);
+    }
+  }
 }
 
-
-/* ================= 1. TODO (DRAG & DROP + XP) ================= */
+/* ================= 1. TODO (Drag, Voice, Smart Task) ================= */
 let todos = JSON.parse(localStorage.getItem("ran_todos")) || [];
 function renderTodo() {
-  const container = document.getElementById('todoList');
-  container.innerHTML = "";
+  const list = document.getElementById('todoList');
+  list.innerHTML = "";
   todos.forEach((t, i) => {
     const div = document.createElement('div');
     div.className = `todo-item glass ${t.done ? 'done' : ''}`;
@@ -370,262 +445,289 @@ function renderTodo() {
     div.innerHTML = `
       <div style="flex:1; display:flex; align-items:center; gap:12px;" onclick="toggleTodo(${i})">
         <div class="checkbox">${t.done ? '✓' : ''}</div>
-        <span class="text" style="flex:1; word-break:break-word; font-weight:500;">${t.text}</span>
+        <span class="text" style="flex:1; font-weight:500;">${t.text}</span>
       </div>
-      <button onclick="deleteTodo(${i})" style="width:auto; padding:8px 12px; background:rgba(239, 68, 68, 0.2); color:#ef4444; border-radius:10px;">🗑️</button>
+      <button onclick="deleteTodo(${i})" style="width:auto; padding:8px; background:transparent; color:#ef4444; border-radius:10px; font-size:1.2rem; box-shadow:none;">🗑️</button>
     `;
-    
     div.ondragstart = () => div.classList.add('dragging');
     div.ondragend = () => div.classList.remove('dragging');
-    container.ondragover = (e) => {
-      e.preventDefault();
-      const dragging = document.querySelector('.dragging');
-      if(dragging) container.appendChild(dragging);
-    };
-    container.ondrop = () => saveOrder();
-    
-    container.appendChild(div);
+    list.ondragover = (e) => { e.preventDefault(); const drag = document.querySelector('.dragging'); if(drag) list.appendChild(drag); };
+    list.ondrop = () => saveOrder();
+    list.appendChild(div);
   });
 }
-function addTodo() {
-  const val = document.getElementById('taskInput').value.trim();
+function addTodo(textVal) {
+  const val = textVal || document.getElementById('taskInput').value.trim();
   if(!val) return;
   todos.push({ text: val, done: false });
-  saveTodos();
-  document.getElementById('taskInput').value = "";
+  saveTodos(); document.getElementById('taskInput').value = "";
 }
-function toggleTodo(i) { 
-  todos[i].done = !todos[i].done; 
-  saveTodos(); 
-  if(todos[i].done) addXP(10); // Tambah XP kalau tugas diceklis
-}
+function toggleTodo(i) { todos[i].done = !todos[i].done; saveTodos(); if(todos[i].done) addRewards(10); }
 function deleteTodo(i) { todos.splice(i, 1); saveTodos(); }
 function saveTodos() { localStorage.setItem("ran_todos", JSON.stringify(todos)); renderTodo(); }
 function saveOrder() {
   const items = [...document.querySelectorAll('.todo-item')];
-  todos = items.map(el => {
-    return { text: el.querySelector('.text').innerText, done: el.classList.contains('done') };
-  });
+  todos = items.map(el => ({ text: el.querySelector('.text').innerText, done: el.classList.contains('done') }));
   localStorage.setItem("ran_todos", JSON.stringify(todos));
 }
 renderTodo();
 
-
-/* ================= 2. CALENDAR ================= */
-let events = JSON.parse(localStorage.getItem("ran_events")) || [];
-function renderEvents() {
-  document.getElementById('eventsList').innerHTML = events.map(x => `
-    <div class="card glass" style="padding: 12px 16px;">
-      <span style="color:var(--primary); font-size:0.85rem; font-weight:bold;">🗓️ ${x.d}</span><br>
-      <span style="font-weight: 500; font-size: 1.1rem;">${x.e}</span>
-    </div>
-  `).join("");
-}
-function saveEvent() {
-  let d = document.getElementById('dateInput').value;
-  let e = document.getElementById('eventInput').value;
-  if(!d || !e) return alert("Isi tanggal dan kegiatan ya bos!");
-  events.push({ d, e });
-  localStorage.setItem("ran_events", JSON.stringify(events));
-  document.getElementById('dateInput').value = ""; document.getElementById('eventInput').value = "";
-  renderEvents(); playSFX('success');
-}
-renderEvents();
-
-
-/* ================= 3. REMINDER ================= */
-function setRem() {
-  let timeStr = document.getElementById('remTime').value;
-  if(!timeStr) return alert("Pilih jamnya dulu!");
-  Notification.requestPermission().then(p => {
-    if(p === "granted") {
-      playSFX('success');
-      alert(`Sip! Notif bakal muncul (Demo: 5 detik dari sekarang).`);
-      setTimeout(() => new Notification("⏰ Info dari Ran App!", { body: "Waktunya cek jadwal kamu!" }), 5000);
-    } else { alert("Browser kamu ngeblokir notifikasi nih."); }
-  });
-}
-
-
-/* ================= 4. MUSIC ================= */
-let audioEl = document.getElementById('audioElement');
-function playMusic(type) {
-  if(type === 'lofi') audioEl.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
-  if(type === 'rain') audioEl.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3";
-  audioEl.play();
-}
-function stopMusic() { audioEl.pause(); audioEl.currentTime = 0; }
-
-
-/* ================= 5. RANDOM PICKER ================= */
-function pickRandom() {
-  let val = document.getElementById('optInput').value;
-  if(!val) return;
-  let arr = val.split(",").map(item => item.trim()).filter(item => item);
-  let resText = document.getElementById('randResult');
+// 🎙️ Voice to Task
+function startVoiceToTask() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognition) return alert("Browser HP kamu belum support fitur suara (Coba pakai Chrome).");
   
-  resText.innerText = "Mengacak... 🎲";
-  resText.style.animation = "float 0.5s infinite";
+  const rec = new SpeechRecognition();
+  rec.lang = 'id-ID';
+  document.getElementById('micBtn').innerText = "🔴";
+  rec.start();
+  
+  rec.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    document.getElementById('taskInput').value = transcript;
+    document.getElementById('micBtn').innerText = "🎙️";
+    addTodo();
+  };
+  rec.onerror = () => { document.getElementById('micBtn').innerText = "🎙️"; alert("Suara tidak terdengar."); }
+}
+
+// 🧠 Smart AI Task Breakdown
+function aiSmartTask() {
+  let val = document.getElementById('taskInput').value.trim();
+  if(!val) return alert("Tulis dulu tugas besar yang mau dipecah!");
+  
+  alert(`🤖 AI Menganalisa: Memecah tugas "${val}" menjadi langkah kecil...`);
   
   setTimeout(() => {
-    resText.style.animation = "none";
-    resText.innerText = arr[Math.floor(Math.random() * arr.length)] + " 🎉";
+    addTodo(`[Step 1] Riset/Persiapan untuk: ${val} (⏳ 15m)`);
+    addTodo(`[Step 2] Eksekusi utama: ${val} (⏳ 45m)`);
+    addTodo(`[Step 3] Review & Finishing: ${val} (⏳ 10m)`);
+    document.getElementById('taskInput').value = "";
     playSFX('success');
-    confetti({ particleCount: 50, spread: 60, zIndex: 9999 });
   }, 1000);
 }
 
-
-/* ================= 6. BOOKMARK ================= */
-let links = JSON.parse(localStorage.getItem("ran_links")) || [];
-function renderLinks() {
-  document.getElementById('linksList').innerHTML = links.map(x => `
+/* ================= 2. GOAL SYSTEM ================= */
+let goals = JSON.parse(localStorage.getItem("ran_goals")) || [];
+function renderGoals() {
+  document.getElementById('goalList').innerHTML = goals.map((g, i) => `
     <div class="card glass">
-      <a href="${x}" target="_blank" style="font-weight: 500;">🔗 ${x}</a>
+      <h3 style="margin-top:0; color:var(--primary);">🎯 ${g.text}</h3>
+      <button onclick="goalToTask(${i})" style="padding:10px; font-size:0.8rem;">Pecah ke To-Do Hari Ini</button>
+      <button onclick="delGoal(${i})" style="background:transparent; color:#ef4444; margin-top:5px; padding:10px; box-shadow:none;">Hapus Goal</button>
     </div>
   `).join("");
 }
-function saveLink() {
-  let input = document.getElementById('linkInput');
-  if(!input.value) return;
-  links.push(input.value);
-  localStorage.setItem("ran_links", JSON.stringify(links));
-  input.value = ""; renderLinks(); playSFX('success');
+function addGoal() {
+  let v = document.getElementById('goalInput').value; if(!v) return;
+  goals.push({ text: v }); localStorage.setItem("ran_goals", JSON.stringify(goals));
+  document.getElementById('goalInput').value = ""; renderGoals();
 }
-renderLinks();
-
-
-/* ================= 7. FILE ================= */
-function checkFile(e) {
-  let f = e.target.files[0];
-  if(f) {
-    document.getElementById('fileName').innerText = `✅ Tersimpan Info: ${f.name} (${(f.size/1024).toFixed(1)} KB)`;
-    playSFX('success');
-  }
+function goalToTask(i) {
+  addTodo(`Lakukan 1 aksi untuk mencapai: ${goals[i].text}`);
+  alert("Masuk ke To-Do List!"); playSFX('success');
 }
+function delGoal(i) { goals.splice(i, 1); localStorage.setItem("ran_goals", JSON.stringify(goals)); renderGoals(); }
+renderGoals();
 
+/* ================= 3. FOCUS MODE (Pomodoro) ================= */
+let pomodoroTimer;
+let timeLeft = 25 * 60;
+let isFocus = false;
 
-/* ================= 8. LOCK NOTES ================= */
-function unlockNotes() {
-  let pass = document.getElementById('passInput');
-  let secretBox = document.getElementById('secretArea');
-  if(pass.value === "1234") {
-    document.getElementById('lockScreen').style.display = "none";
-    secretBox.style.display = "block";
-    secretBox.value = localStorage.getItem("ran_secret") || "";
-    secretBox.onkeyup = () => localStorage.setItem("ran_secret", secretBox.value);
-    playSFX('success');
+function togglePomodoro() {
+  const btn = document.getElementById('pomodoroBtn');
+  if(isFocus) {
+    clearInterval(pomodoroTimer);
+    document.body.classList.remove('focus-active');
+    btn.innerHTML = "▶ Mulai Fokus"; btn.style.background = "#10b981";
+    isFocus = false;
   } else {
-    alert("PIN Salah! Coba pakai 1234");
+    // KUNCI UI
+    document.body.classList.add('focus-active');
+    btn.innerHTML = "⏹ Berhenti (Menyerah)"; btn.style.background = "#ef4444";
+    isFocus = true;
+    
+    pomodoroTimer = setInterval(() => {
+      timeLeft--;
+      let m = Math.floor(timeLeft / 60); let s = timeLeft % 60;
+      document.getElementById('timerDisplay').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+      
+      if(timeLeft <= 0) {
+        clearInterval(pomodoroTimer);
+        document.body.classList.remove('focus-active');
+        playSFX('levelup');
+        alert("WAKTU HABIS! Selamat, kamu super fokus! (+50 XP)");
+        addRewards(50);
+        togglePomodoro(); // Reset
+        timeLeft = 25 * 60;
+      }
+    }, 1000);
   }
 }
+function playMusic(type) {
+  let a = document.getElementById('audioElement');
+  a.src = type === 'lofi' ? "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" : "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3";
+  a.play();
+}
+function stopMusic() { document.getElementById('audioElement').pause(); }
 
+/* ================= 4. JOURNAL & MOOD ================= */
+let journals = JSON.parse(localStorage.getItem("ran_journals")) || [];
+let currentMood = "😐";
 
-/* ================= 9. DASHBOARD STATS ================= */
+function selectMood(m) {
+  currentMood = m;
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  event.target.classList.add('selected');
+}
+function saveJournal() {
+  let txt = document.getElementById('journalInput').value; if(!txt) return;
+  let date = new Date().toLocaleDateString('id-ID');
+  journals.unshift({ date, mood: currentMood, text: txt });
+  localStorage.setItem("ran_journals", JSON.stringify(journals));
+  document.getElementById('journalInput').value = ""; renderJournals(); playSFX('success');
+}
+function renderJournals() {
+  document.getElementById('journalList').innerHTML = journals.map(j => `
+    <div class="card glass" style="border-left: 4px solid var(--primary);">
+      <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+        <small style="color:#94a3b8;">${j.date}</small>
+        <span style="font-size:1.5rem;">${j.mood}</span>
+      </div>
+      <p style="font-size:0.9rem; line-height:1.4;">${j.text}</p>
+    </div>
+  `).join("");
+}
+renderJournals();
+
+/* ================= 5. MINI AI & STATS ================= */
 let chartInstance;
-function updateStats() {
+function updateStatsAndAI() {
   const done = todos.filter(t => t.done).length;
-  const total = todos.length;
-  const pending = total - done;
   document.getElementById('doneCount').innerText = done;
   
+  // Update Chart
   const ctx = document.getElementById('statChart').getContext('2d');
   if(chartInstance) chartInstance.destroy();
-  
   let primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
   
   chartInstance = new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: ['Selesai', 'Belum'],
-      datasets: [{
-        data: [done, pending],
-        backgroundColor: [primaryColor, 'rgba(255,255,255,0.05)'],
-        borderColor: ['transparent', 'rgba(255,255,255,0.2)'],
-        borderWidth: 2
-      }]
+      labels: ['Selesai', 'Sisa'],
+      datasets: [{ data: [done, todos.length - done], backgroundColor: [primaryColor, 'rgba(255,255,255,0.05)'], borderWidth: 0 }]
     },
     options: { plugins: { legend: { labels: { color: '#fff' } } }, cutout: '75%' }
   });
+
+  // Mini AI Analysis Logic
+  let insight = "Data masih sedikit, ayo tambah tugas dan jurnal!";
+  if(todos.length > 0) {
+    let ratio = done / todos.length;
+    if(ratio > 0.8) insight = "Gila, kamu super produktif! Hampir semua tugas dilibas habis. 🚀";
+    else if(ratio > 0.4) insight = "Kerja bagus! Progres hari ini stabil, jangan lupa istirahat ya. ☕";
+    else insight = "Hmm, banyak tugas numpuk nih. Coba pakai fitur 'Focus Mode' biar cepet kelar! ⏳";
+  }
+  if(journals.length > 0) {
+    insight += ` Btw, mood dominan terakhirmu adalah ${journals[0].mood}. Tetap semangat!`;
+  }
+  document.getElementById('aiInsight').innerText = insight;
 }
 
-
-/* ================= 10. HABIT TRACKER (+ XP) ================= */
+/* ================= 8. HABIT TRACKER ================= */
 let habits = JSON.parse(localStorage.getItem("ran_habits")) || [];
 function renderHabits() {
   document.getElementById('habitList').innerHTML = habits.map((h, i) => `
-    <div class="card glass habit-row">
+    <div class="card glass" style="display:flex; justify-content:space-between; align-items:center;">
       <div>
-        <strong style="font-size: 1.1rem;">${h.name}</strong> <br>
-        <div class="streak-badge">🔥 ${h.streak} Hari</div>
+        <strong style="font-size:1.1rem;">${h.name}</strong> <br>
+        <span style="background:rgba(255,215,0,0.2); color:#ffd700; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:bold;">🔥 ${h.streak} Hari</span>
       </div>
-      <button onclick="hitHabit(${i})" style="width: auto; padding: 10px 20px; border-radius: 12px;">Selesai</button>
+      <button onclick="hitHabit(${i})" style="width:auto; padding:10px 20px;">Selesai</button>
     </div>
   `).join("");
 }
 function addHabit() {
-  let val = document.getElementById('habitInput').value;
-  if(!val) return;
-  habits.push({ name: val, streak: 0 });
-  localStorage.setItem("ran_habits", JSON.stringify(habits));
+  let v = document.getElementById('habitInput').value; if(!v) return;
+  habits.push({ name: v, streak: 0 }); localStorage.setItem("ran_habits", JSON.stringify(habits));
   document.getElementById('habitInput').value = ""; renderHabits();
 }
-function hitHabit(i) {
-  habits[i].streak++;
-  localStorage.setItem("ran_habits", JSON.stringify(habits));
-  renderHabits();
-  addXP(5); // Tambah XP tiap menyelesaikan habit
-}
+function hitHabit(i) { habits[i].streak++; localStorage.setItem("ran_habits", JSON.stringify(habits)); renderHabits(); addRewards(5); }
 renderHabits();
 
+/* ================= TOOLS (Calendar, Random, Secret, File) ================= */
+// Calendar
+let events = JSON.parse(localStorage.getItem("ran_events")) || [];
+function saveEvent() { let d=document.getElementById('dateInput').value; let e=document.getElementById('eventInput').value; if(d&&e) {events.push({d,e}); localStorage.setItem("ran_events", JSON.stringify(events)); document.getElementById('eventsList').innerHTML += `<div class="card glass">${d} - ${e}</div>`; playSFX('success');}}
 
-/* ================= 11. AI ASSISTANT ================= */
-function askAI() {
-  const input = document.getElementById('aiInput');
-  const msg = input.value.trim().toLowerCase();
-  if(!msg) return;
-  
-  const chatBox = document.getElementById('chatBox');
-  chatBox.innerHTML += `<div class="msg user">${input.value}</div>`;
-  input.value = "";
-  chatBox.scrollTop = chatBox.scrollHeight;
-  
-  let reply = "Info diterima! Tapi aku belum ngerti bahasamu seutuhnya. Coba bahas tugas atau habit.";
-  if(msg.includes("halo") || msg.includes("hai")) reply = "Halo master! Gimana progres levelmu hari ini? Udah nambah XP belum?";
-  if(msg.includes("tugas") || msg.includes("todo")) reply = `Kamu punya ${todos.filter(t=>!t.done).length} tugas belum beres. Ayo kerjain buat nambah +10 XP!`;
-  if(msg.includes("habit")) reply = "Terus pertahankan streak Habit-mu! Itu tambang XP yang bagus.";
-  if(msg.includes("level") || msg.includes("xp")) reply = `Level kamu sekarang ${getLevelInfo().lvl}. Kumpulin terus poinnya sampai level Dewa 👑!`;
+// Reminder
+function setRem() { if(document.getElementById('remTime').value) { Notification.requestPermission().then(p => { if(p==="granted") { playSFX('success'); alert("Diset! (Simulasi 5 detik)"); setTimeout(()=>new Notification("⏰ Waktunya cek app!"), 5000); }}); } }
 
-  setTimeout(() => {
-    playSFX('success');
-    chatBox.innerHTML += `<div class="msg bot">${reply}</div>`;
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }, 800);
+// Random Picker
+function pickRandom() {
+  let arr = document.getElementById('optInput').value.split(",");
+  if(arr.length > 0 && arr[0]) {
+    document.getElementById('randResult').innerText = "🎲 Mengacak...";
+    setTimeout(() => { document.getElementById('randResult').innerText = arr[Math.floor(Math.random()*arr.length)] + " 🎉"; playSFX('success'); confetti(); }, 800);
+  }
 }
 
+// Secret Notes Auto-Save
+document.getElementById('secretArea').value = localStorage.getItem("ran_secret") || "";
+function saveSecret() { localStorage.setItem("ran_secret", document.getElementById('secretArea').value); }
 
-/* ================= 12. SETTINGS & CLOUD ================= */
-function fakeCloudLogin() {
-  let email = document.getElementById('cloudEmail').value;
-  if(!email) return alert("Isi emailnya dulu!");
-  playSFX('success');
-  alert("Login Cloud berhasil disimulasikan! (Data masih tersimpan di Local Storage. Untuk Cloud asli, hubungkan script Firebase di backend).");
-}
-
-function exportData() {
+/* ================= 11. BACKUP & RESTORE JSON ================= */
+function exportJSON() {
   const data = {
-    xp: userXP,
-    todos: todos, events: events, links: links, habits: habits,
-    secret_notes: localStorage.getItem("ran_secret") || "",
-    theme: localStorage.getItem("ran_theme_color") || ""
+    xp: userXP, coins: userCoins, themes: unlockedThemes,
+    todos, goals, journals, habits, events, 
+    secret: localStorage.getItem("ran_secret") || ""
   };
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
-  const a = document.createElement('a'); a.href = dataStr; a.download = "ran_superapp_ultimate.json";
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+  const a = document.createElement('a'); a.href = dataStr; a.download = "ran_superapp_dewa.json";
   document.body.appendChild(a); a.click(); a.remove();
 }
 
-/* Service Worker Register */
-if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(e => console.log("SW offline"));
+function importJSON(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if(data.xp !== undefined) {
+        localStorage.setItem("ran_xp", data.xp);
+        localStorage.setItem("ran_coins", data.coins);
+        localStorage.setItem("ran_themes", JSON.stringify(data.themes || ['cyber']));
+        localStorage.setItem("ran_todos", JSON.stringify(data.todos || []));
+        localStorage.setItem("ran_goals", JSON.stringify(data.goals || []));
+        localStorage.setItem("ran_journals", JSON.stringify(data.journals || []));
+        localStorage.setItem("ran_habits", JSON.stringify(data.habits || []));
+        localStorage.setItem("ran_secret", data.secret || "");
+        alert("✅ Restore Data Berhasil! Aplikasi akan dimuat ulang.");
+        location.reload();
+      } else { alert("File JSON tidak valid/rusak."); }
+    } catch(err) { alert("Error membaca file."); }
+  };
+  reader.readAsText(file);
+}
+
+/* AI CHAT */
+function askAI() {
+  const val = document.getElementById('aiInput').value; if(!val) return;
+  const cb = document.getElementById('chatBox');
+  cb.innerHTML += `<div class="msg user">${val}</div>`; document.getElementById('aiInput').value = ""; cb.scrollTop = cb.scrollHeight;
+  setTimeout(() => {
+    let reply = "Info masuk! Untuk bantuan lebih lanjut, pakai fitur Smart Task atau Journal ya.";
+    if(val.toLowerCase().includes("halo")) reply = "Halo master! Jangan lupa kelarin To-Do buat dapet Koin.";
+    if(val.toLowerCase().includes("koin")) reply = "Koin didapat otomatis tiap kamu ceklis tugas (10 XP = 5 Koin). Pakai buat beli Tema!";
+    cb.innerHTML += `<div class="msg bot">${reply}</div>`; cb.scrollTop = cb.scrollHeight; playSFX('success');
+  }, 800);
+}
+
+// Service Worker
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(e=>console.log("SW offline"));
 </script>
 
 </body>

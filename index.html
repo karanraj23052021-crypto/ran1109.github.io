@@ -89,7 +89,7 @@
     body.focus-active { background: #000; }
     .pomodoro-display { font-size: 4.5rem; font-weight: 800; color: var(--primary); text-shadow: var(--glow); margin: 30px 0; font-variant-numeric: tabular-nums; }
 
-    /* 🍞 TOAST NOTIFICATION (Micro Interaction) */
+    /* 🍞 TOAST NOTIFICATION */
     #toastContainer { position: fixed; top: 85px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
     .toast { background: rgba(11, 15, 25, 0.95); border: 1px solid var(--primary); color: white; padding: 12px 24px; border-radius: 30px; font-size: 0.9rem; font-weight: 600; box-shadow: 0 5px 15px rgba(0,0,0,0.5), var(--glow); animation: toastIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, toastOut 0.3s ease-in 2.7s forwards; }
     @keyframes toastIn { from { opacity: 0; transform: translateY(-20px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -137,7 +137,7 @@
     <h2>📝 Smart Task</h2>
     <div class="card glass" style="display: flex; flex-direction: column; gap: 10px;">
       <div style="display: flex; gap: 8px;">
-        <input id="taskInput" placeholder="Tulis tugas & tekan Enter..." style="margin:0" onkeypress="handleEnter(event, addTodo)">
+        <input id="taskInput" placeholder="Tulis tugas & tekan Enter..." style="margin:0" onkeydown="if(event.key==='Enter' || event.keyCode===13){event.preventDefault(); addTodo();}">
         <button onclick="startVoiceToTask()" id="micBtn" style="width: 55px; background: rgba(255,255,255,0.1); font-size:1.2rem;">🎙️</button>
       </div>
       <div style="display: flex; gap: 8px;">
@@ -152,7 +152,7 @@
     <h2>🎯 Goal System</h2>
     <p style="font-size: 0.85rem; color:#94a3b8; margin-bottom:15px;">Target jangka panjang. Tekan Enter untuk simpan.</p>
     <div class="card glass">
-      <input id="goalInput" placeholder="Contoh: Lulus Cumlaude" onkeypress="handleEnter(event, addGoal)">
+      <input id="goalInput" placeholder="Contoh: Lulus Cumlaude" onkeydown="if(event.key==='Enter' || event.keyCode===13){event.preventDefault(); addGoal();}">
       <button onclick="addGoal()">Set Goal</button>
     </div>
     <div id="goalList"></div>
@@ -218,7 +218,7 @@
     <h2>📅 Kalender</h2>
     <div class="card glass">
       <input type="date" id="dateInput">
-      <input id="eventInput" placeholder="Nama Event" onkeypress="handleEnter(event, saveEvent)">
+      <input id="eventInput" placeholder="Nama Event" onkeydown="if(event.key==='Enter' || event.keyCode===13){event.preventDefault(); saveEvent();}">
       <button onclick="saveEvent()">Simpan Event</button>
     </div>
     <div id="eventsList"></div>
@@ -235,7 +235,7 @@
   <div id="habit" class="page">
     <h2>🔥 Habit Tracker</h2>
     <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-      <input id="habitInput" placeholder="Cth: Olahraga (Tekan Enter)" style="margin:0" onkeypress="handleEnter(event, addHabit)">
+      <input id="habitInput" placeholder="Cth: Olahraga (Tekan Enter)" style="margin:0" onkeydown="if(event.key==='Enter' || event.keyCode===13){event.preventDefault(); addHabit();}">
       <button onclick="addHabit()" style="width: auto; padding: 0 20px;">+</button>
     </div>
     <div id="habitList"></div>
@@ -248,7 +248,7 @@
         <div class="msg bot">Halo! Ini Ran Life OS Assistant. Ada yang bisa dibantu?</div>
       </div>
       <div style="display: flex; gap: 10px; margin-top: 15px;">
-        <input id="aiInput" placeholder="Ketik lalu Enter..." style="margin:0" onkeypress="handleEnter(event, askAI)">
+        <input id="aiInput" placeholder="Ketik lalu Enter..." style="margin:0" onkeydown="if(event.key==='Enter' || event.keyCode===13){event.preventDefault(); askAI();}">
         <button onclick="askAI()" style="width: auto; padding: 0 20px;">Kirim</button>
       </div>
     </div>
@@ -265,14 +265,14 @@
 
     <div class="card glass">
       <h3>🎲 Gacha Picker</h3>
-      <input id="optInput" placeholder="Pilihan 1, Pilihan 2..." onkeypress="handleEnter(event, pickRandom)">
+      <input id="optInput" placeholder="Pilihan 1, Pilihan 2..." onkeydown="if(event.key==='Enter' || event.keyCode===13){event.preventDefault(); pickRandom();}">
       <button onclick="pickRandom()">Putar Gacha</button>
       <h3 id="randResult" style="text-align:center; color:var(--primary); margin-top:15px;">-</h3>
     </div>
 
     <div class="card glass">
       <h3>📌 Bookmark URL</h3>
-      <input id="linkInput" placeholder="https://" onkeypress="handleEnter(event, saveLink)">
+      <input id="linkInput" placeholder="https://" onkeydown="if(event.key==='Enter' || event.keyCode===13){event.preventDefault(); saveLink();}">
       <button onclick="saveLink()" style="margin-bottom:15px;">Simpan Link</button>
       <div id="linksList"></div>
     </div>
@@ -326,8 +326,30 @@
 </div>
 
 <script>
-/* ================= INTERNAL ANALYTICS (Background Process) ================= */
-let appStats = JSON.parse(localStorage.getItem('ran_analytics')) || { clicks: 0, seconds: 0, tabs: {} };
+/* ================= DATA UTILS (Sistem Anti-Crash 🛡️) ================= */
+// Mengatasi konflik data jika memori terbaca sebagai format yang salah
+function getStorage(key, def) {
+  try {
+    let val = localStorage.getItem(key);
+    if (!val) return def;
+    let parsed = JSON.parse(val);
+    // Pastikan data Array tidak tertukar jadi Object biasa
+    if (Array.isArray(def) && !Array.isArray(parsed)) return def;
+    return parsed;
+  } catch(e) { 
+    return def; // Kalau data korup, reset jadi default
+  }
+}
+
+let todos = getStorage("ran_todos", []);
+let goals = getStorage("ran_goals", []);
+let journals = getStorage("ran_journals", []);
+let habits = getStorage("ran_habits", []);
+let events = getStorage("ran_events", []);
+let unlockedThemes = getStorage("ran_themes", ['cyber']);
+let appStats = getStorage("ran_analytics", { clicks: 0, seconds: 0, tabs: {} });
+
+/* ================= INTERNAL ANALYTICS ================= */
 document.addEventListener('click', (e) => { 
   appStats.clicks++; 
   if(appStats.clicks % 10 === 0) localStorage.setItem('ran_analytics', JSON.stringify(appStats));
@@ -337,29 +359,25 @@ setInterval(() => {
   if(appStats.seconds % 30 === 0) localStorage.setItem('ran_analytics', JSON.stringify(appStats));
 }, 1000);
 
-/* ================= HAPTIC, AUDIO, & TOAST (Micro Interactions) ================= */
+/* ================= HAPTIC, AUDIO, & TOAST ================= */
 const sfxClick = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
 const sfxSuccess = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
 const sfxLevelUp = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
 
 function playFeedback(type) {
-  // Haptic Vibration (Getar)
   if(navigator.vibrate) {
     if(type === 'click') navigator.vibrate(30);
     else if(type === 'success') navigator.vibrate([50, 50, 50]);
     else if(type === 'levelup') navigator.vibrate([100, 50, 100, 50, 200]);
   }
-  // Audio
   try {
     if(type === 'click') { sfxClick.currentTime = 0; sfxClick.play(); }
     else if(type === 'success') { sfxSuccess.currentTime = 0; sfxSuccess.play(); }
     else if(type === 'levelup') { sfxLevelUp.currentTime = 0; sfxLevelUp.play(); }
   } catch(e) {}
 }
-// Auto bind click sound to buttons
 document.addEventListener('click', (e) => { if(e.target.closest('button') || e.target.closest('.nav-btn')) playFeedback('click'); });
 
-// Toast Notification
 function showToast(msg) {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
@@ -367,14 +385,6 @@ function showToast(msg) {
   toast.innerText = msg;
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 3000);
-}
-
-// Enter key submit
-function handleEnter(e, actionFunc) {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    actionFunc();
-  }
 }
 
 /* ================= 🔐 SECURITY LOCK ================= */
@@ -385,19 +395,17 @@ function checkGlobalLock() {
     document.getElementById('globalLock').style.opacity = '0';
     setTimeout(() => document.getElementById('globalLock').style.display = 'none', 400);
     playFeedback('success');
-    showToast("OS Unlocked!");
-    // Auto focus UX detail
+    showToast("OS Unlocked! 🔓");
     setTimeout(() => document.getElementById('taskInput').focus(), 500);
   } else if (input.length >= 4) {
     showToast("PIN Salah!");
-    if(navigator.vibrate) navigator.vibrate([200, 100, 200]); // Error vibration
+    if(navigator.vibrate) navigator.vibrate([200, 100, 200]); 
   }
 }
 
 /* ================= 🎮 XP, COIN & NAVIGATION ================= */
 let userXP = parseInt(localStorage.getItem('ran_xp')) || 0;
 let userCoins = parseInt(localStorage.getItem('ran_coins')) || 0;
-let unlockedThemes = JSON.parse(localStorage.getItem('ran_themes')) || ['cyber'];
 
 function getLevelInfo() {
   let lvl = Math.floor(userXP / 100) + 1;
@@ -445,7 +453,6 @@ function show(pageId, btn) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-btn'));
   if(btn) {
     btn.classList.add('active-btn');
-    // Analytics: Record tab usage
     let tabName = btn.getAttribute('data-tab');
     if(tabName) {
       appStats.tabs[tabName] = (appStats.tabs[tabName] || 0) + 1;
@@ -475,9 +482,7 @@ function buyTheme(id, p, s, cost) {
 }
 
 /* ================= 📝 TODO (Smart Task) ================= */
-let todos = JSON.parse(localStorage.getItem("ran_todos")) || [];
 function renderTodo() {
-  // Performance: Gunakan teknik penggabungan string yang efisien
   document.getElementById('todoList').innerHTML = todos.map((t, i) => `
     <div class="todo-item glass ${t.done ? 'done' : ''}" draggable="true" ondragstart="this.classList.add('dragging')" ondragend="this.classList.remove('dragging')">
       <div style="flex:1; display:flex; align-items:center; gap:12px;" onclick="toggleTodo(${i})">
@@ -488,15 +493,22 @@ function renderTodo() {
     </div>
   `).join('');
   
-  // Drag Drop event listener injection
   const list = document.getElementById('todoList');
   list.ondragover = e => { e.preventDefault(); const drag = document.querySelector('.dragging'); if(drag) list.appendChild(drag); };
   list.ondrop = () => saveOrder();
 }
+
 function addTodo() {
-  const val = document.getElementById('taskInput').value.trim(); if(!val) return;
-  todos.unshift({ text: val, done: false }); saveTodos(); document.getElementById('taskInput').value = ""; showToast("Tugas ditambahkan");
+  const input = document.getElementById('taskInput');
+  const val = input.value.trim(); 
+  if(!val) return;
+  todos.unshift({ text: val, done: false }); 
+  saveTodos(); 
+  input.value = ""; 
+  showToast("Tugas ditambahkan ✅");
+  playFeedback('success');
 }
+
 function toggleTodo(i) { todos[i].done = !todos[i].done; saveTodos(); if(todos[i].done) addRewards(10); }
 function deleteTodo(i) { todos.splice(i, 1); saveTodos(); }
 function saveTodos() { localStorage.setItem("ran_todos", JSON.stringify(todos)); renderTodo(); }
@@ -514,6 +526,7 @@ function startVoiceToTask() {
   rec.onresult = (e) => { document.getElementById('taskInput').value = e.results[0][0].transcript; document.getElementById('micBtn').innerText = "🎙️"; addTodo(); };
   rec.onerror = () => { document.getElementById('micBtn').innerText = "🎙️"; showToast("Suara tidak terdeteksi"); }
 }
+
 function aiSmartTask() {
   let val = document.getElementById('taskInput').value.trim(); if(!val) return showToast("Ketik tugasnya dulu");
   showToast("🧠 AI Memecah Tugas...");
@@ -524,9 +537,8 @@ function aiSmartTask() {
 }
 
 /* ================= 🎯 GOALS ================= */
-let goals = JSON.parse(localStorage.getItem("ran_goals")) || [];
 function renderGoals() { document.getElementById('goalList').innerHTML = goals.map((g, i) => `<div class="card glass"><h3 style="margin-top:0; color:var(--primary);">🎯 ${g.text}</h3><button onclick="todos.unshift({text:'Tugas untuk goal: ${g.text}', done:false}); saveTodos(); showToast('Masuk To-Do!');" style="padding:10px; font-size:0.8rem;">Pecah ke To-Do</button><button onclick="goals.splice(${i}, 1); localStorage.setItem('ran_goals', JSON.stringify(goals)); renderGoals();" style="background:transparent; color:#ef4444; margin-top:5px; padding:10px; box-shadow:none;">Hapus Goal</button></div>`).join(""); }
-function addGoal() { let v = document.getElementById('goalInput').value; if(v) { goals.push({ text: v }); localStorage.setItem("ran_goals", JSON.stringify(goals)); document.getElementById('goalInput').value = ""; renderGoals(); showToast("Goal diset"); } }
+function addGoal() { let v = document.getElementById('goalInput').value; if(v) { goals.push({ text: v }); localStorage.setItem("ran_goals", JSON.stringify(goals)); document.getElementById('goalInput').value = ""; renderGoals(); showToast("Goal diset"); playFeedback('success'); } }
 renderGoals();
 
 /* ================= ⏳ FOCUS MODE ================= */
@@ -548,7 +560,7 @@ function playMusic(t) { let a = document.getElementById('audioElement'); a.src =
 function stopMusic() { document.getElementById('audioElement').pause(); }
 
 /* ================= 📖 JOURNAL ================= */
-let journals = JSON.parse(localStorage.getItem("ran_journals")) || []; let currentMood = "😐";
+let currentMood = "😐";
 function selectMood(m) { currentMood = m; document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected')); event.target.classList.add('selected'); }
 function saveJournal() {
   let txt = document.getElementById('journalInput').value; if(!txt) return;
@@ -563,21 +575,17 @@ let chartInstance;
 function updateStatsAndAI() {
   const done = todos.filter(t => t.done).length; document.getElementById('doneCount').innerText = done;
   
-  // Analytics display
   let mins = Math.floor(appStats.seconds / 60);
   document.getElementById('statTime').innerText = `${mins}m`;
   document.getElementById('statClicks').innerText = appStats.clicks;
-  
   let favTab = Object.keys(appStats.tabs).reduce((a, b) => appStats.tabs[a] > appStats.tabs[b] ? a : b, 'To-Do');
   document.getElementById('statFav').innerText = favTab;
 
-  // Chart
   const ctx = document.getElementById('statChart').getContext('2d');
   if(chartInstance) chartInstance.destroy();
   let pc = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
   chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: ['Selesai', 'Sisa'], datasets: [{ data: [done, todos.length - done], backgroundColor: [pc, 'rgba(255,255,255,0.05)'], borderWidth: 0 }] }, options: { plugins: { legend: { display:false } }, cutout: '75%' } });
 
-  // Mini AI Insight
   let insight = "Aktivitas belum cukup untuk dianalisa.";
   if(todos.length > 0) {
     let r = done / todos.length;
@@ -589,34 +597,31 @@ function updateStatsAndAI() {
 }
 
 /* ================= 🔥 HABIT ================= */
-let habits = JSON.parse(localStorage.getItem("ran_habits")) || [];
 function renderHabits() { document.getElementById('habitList').innerHTML = habits.map((h, i) => `<div class="card glass" style="display:flex; justify-content:space-between; align-items:center;"><div><strong style="font-size:1.1rem;">${h.name}</strong> <br><span style="background:rgba(255,215,0,0.2); color:#ffd700; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:bold;">🔥 ${h.streak} Hari</span></div><button onclick="habits[${i}].streak++; localStorage.setItem('ran_habits', JSON.stringify(habits)); renderHabits(); addRewards(5);" style="width:auto; padding:10px 20px;">Selesai</button></div>`).join(""); }
-function addHabit() { let v = document.getElementById('habitInput').value; if(v) { habits.push({ name: v, streak: 0 }); localStorage.setItem("ran_habits", JSON.stringify(habits)); document.getElementById('habitInput').value = ""; renderHabits(); showToast("Habit ditambahkan"); } }
+function addHabit() { let v = document.getElementById('habitInput').value; if(v) { habits.push({ name: v, streak: 0 }); localStorage.setItem("ran_habits", JSON.stringify(habits)); document.getElementById('habitInput').value = ""; renderHabits(); showToast("Habit ditambahkan"); playFeedback('success'); } }
 renderHabits();
 
-/* ================= TOOLS (Cal, Rem, Secret, Rand) ================= */
-let events = JSON.parse(localStorage.getItem("ran_events")) || [];
-function saveEvent() { let d=document.getElementById('dateInput').value; let e=document.getElementById('eventInput').value; if(d&&e) {events.push({d,e}); localStorage.setItem("ran_events", JSON.stringify(events)); document.getElementById('eventsList').innerHTML += `<div class="card glass">${d} - ${e}</div>`; showToast("Event disave");}}
+/* ================= TOOLS ================= */
+function saveEvent() { let d=document.getElementById('dateInput').value; let e=document.getElementById('eventInput').value; if(d&&e) {events.push({d,e}); localStorage.setItem("ran_events", JSON.stringify(events)); document.getElementById('eventsList').innerHTML += `<div class="card glass">${d} - ${e}</div>`; showToast("Event disave"); playFeedback('success');}}
 
 function setRem() { if(document.getElementById('remTime').value) { Notification.requestPermission().then(p => { if(p==="granted") { playFeedback('success'); showToast("Notif aktif (Simulasi 5s)"); setTimeout(()=>new Notification("⏰ Waktunya cek app!"), 5000); }}); } }
 
 function pickRandom() { let arr = document.getElementById('optInput').value.split(","); if(arr.length > 0 && arr[0]) { document.getElementById('randResult').innerText = "🎲 Mengacak..."; setTimeout(() => { document.getElementById('randResult').innerText = arr[Math.floor(Math.random()*arr.length)] + " 🎉"; playFeedback('success'); confetti(); }, 500); } }
 
-function saveLink() { let l = document.getElementById('linkInput').value; if(l) { document.getElementById('linksList').innerHTML += `<div class="card glass"><a href="${l}" target="_blank" style="color:var(--primary); font-weight:bold;">🔗 ${l}</a></div>`; document.getElementById('linkInput').value=""; showToast("Link disave"); } }
+function saveLink() { let l = document.getElementById('linkInput').value; if(l) { document.getElementById('linksList').innerHTML += `<div class="card glass"><a href="${l}" target="_blank" style="color:var(--primary); font-weight:bold;">🔗 ${l}</a></div>`; document.getElementById('linkInput').value=""; showToast("Link disave"); playFeedback('success'); } }
 
-/* SECURITY BASIC: Simple Data Encryption Base64 + Debounce Input */
+// SECURITY BASIC: Simple Encryption + Debounce
 function encrypt(str) { return btoa(encodeURIComponent(str)); }
 function decrypt(str) { try { return decodeURIComponent(atob(str)); } catch(e) { return str; } }
 
-// Debounce logic for performance
 let saveTimer;
 document.getElementById('secretArea').value = decrypt(localStorage.getItem("ran_secret") || "");
 document.getElementById('secretArea').addEventListener('input', (e) => {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     localStorage.setItem("ran_secret", encrypt(e.target.value));
-    showToast("Ter-Enkripsi & Tersimpan");
-  }, 1000); // Tunggu 1 detik setelah berhenti ngetik
+    showToast("Ter-Enkripsi & Tersimpan 🔒");
+  }, 1000); 
 });
 
 /* ================= AI CHAT ================= */
@@ -636,11 +641,13 @@ function exportJSON() {
   const data = { xp: userXP, coins: userCoins, themes: unlockedThemes, todos, goals, journals, habits, events, secret: localStorage.getItem("ran_secret") || "", analytics: appStats };
   const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data)); a.download = "ran_life_os_backup.json"; document.body.appendChild(a); a.click(); a.remove(); showToast("Export berhasil");
 }
+
 function importJSON(e) {
   const file = e.target.files[0]; if(!file) return;
   const reader = new FileReader();
   reader.onload = (ev) => {
-    try { const data = JSON.parse(ev.target.result);
+    try { 
+      const data = JSON.parse(ev.target.result);
       if(data.xp !== undefined) {
         localStorage.setItem("ran_xp", data.xp); localStorage.setItem("ran_coins", data.coins); localStorage.setItem("ran_themes", JSON.stringify(data.themes||['cyber'])); localStorage.setItem("ran_todos", JSON.stringify(data.todos||[])); localStorage.setItem("ran_goals", JSON.stringify(data.goals||[])); localStorage.setItem("ran_journals", JSON.stringify(data.journals||[])); localStorage.setItem("ran_habits", JSON.stringify(data.habits||[])); localStorage.setItem("ran_secret", data.secret||""); localStorage.setItem("ran_analytics", JSON.stringify(data.analytics||{}));
         alert("Restore OS Berhasil! Aplikasi akan direstart."); location.reload();

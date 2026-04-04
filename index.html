@@ -639,7 +639,8 @@ document.getElementById('secretArea').addEventListener('input', (e) => {
   }, 1000); 
 });
 
-/* ================= 🤖 AI CHAT COMPARISON (Vercel Backend) ================= */
+/* ================= 🤖 AI CHAT API INTEGRATION ================= */
+// FUNGSI INI YANG DIUBAH AGAR MENGGUNAKAN API GEMINI VERCEL KAMU!
 async function askAI() {
   const inputEl = document.getElementById('aiInput');
   const val = inputEl.value.trim(); 
@@ -648,6 +649,7 @@ async function askAI() {
   const cbGpt = document.getElementById('chatBoxGPT');
   const cbGemini = document.getElementById('chatBoxGemini');
   
+  // Tampilkan apa yang diketik user ke dalam box chat
   cbGpt.innerHTML += `<div class="msg user">${val}</div>`; 
   cbGemini.innerHTML += `<div class="msg user">${val}</div>`; 
   
@@ -659,30 +661,47 @@ async function askAI() {
   cbGpt.innerHTML += `<div class="msg bot" id="load-gpt-${loadingId}">Berpikir... ⏳</div>`;
   cbGemini.innerHTML += `<div class="msg bot" id="load-gem-${loadingId}">Menganalisa... ⏳</div>`;
 
+  // 1. Fetch ke API Gemini yang baru kamu buat di Vercel (api/gemini.js)
   try {
-    const response = await fetch('/api/ai', {
+    const resGemini = await fetch('/api/gemini', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: val })
     });
-
-    const data = await response.json();
-
-    document.getElementById(`load-gpt-${loadingId}`)?.remove();
+    
+    const dataGemini = await resGemini.json();
     document.getElementById(`load-gem-${loadingId}`)?.remove();
-
-    if (response.ok) {
-      cbGpt.innerHTML += `<div class="msg bot">${data.chatgpt}</div>`;
-      cbGemini.innerHTML += `<div class="msg bot">${data.gemini}</div>`;
+    
+    if (resGemini.ok) {
+      cbGemini.innerHTML += `<div class="msg bot">${dataGemini.reply}</div>`;
     } else {
-      showToast("Gagal menghubungi AI.");
-      cbGpt.innerHTML += `<div class="msg bot" style="color:#ef4444;">Koneksi gagal. Cek Vercel Logs.</div>`;
-      cbGemini.innerHTML += `<div class="msg bot" style="color:#ef4444;">Koneksi gagal. Cek Vercel Logs.</div>`;
+      cbGemini.innerHTML += `<div class="msg bot" style="color:#ef4444;">Error: ${dataGemini.error}</div>`;
+    }
+  } catch (error) {
+    document.getElementById(`load-gem-${loadingId}`)?.remove();
+    cbGemini.innerHTML += `<div class="msg bot" style="color:#ef4444;">Koneksi ke Gemini terputus. Pastikan Vercel berjalan.</div>`;
+  }
+
+  // 2. Fetch ke API ChatGPT (Mock/Peringatan karena kamu belum upload file api/gpt.js)
+  try {
+    // Karena kita tidak yakin kamu sudah buat api/gpt.js, kita buat fallback error yang ramah.
+    const resGpt = await fetch('/api/gpt', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: val })
+    });
+    
+    const dataGpt = await resGpt.json();
+    document.getElementById(`load-gpt-${loadingId}`)?.remove();
+    
+    if (resGpt.ok) {
+      cbGpt.innerHTML += `<div class="msg bot">${dataGpt.reply || dataGpt.chatgpt}</div>`;
+    } else {
+      cbGpt.innerHTML += `<div class="msg bot" style="color:#ef4444;">Info: Endpoint API ChatGPT belum kamu setting di Vercel.</div>`;
     }
   } catch (error) {
     document.getElementById(`load-gpt-${loadingId}`)?.remove();
-    document.getElementById(`load-gem-${loadingId}`)?.remove();
-    showToast("Server error atau sedang offline.");
+    cbGpt.innerHTML += `<div class="msg bot" style="color:#ef4444;">Info: File api/gpt.js tidak ditemukan di servermu.</div>`;
   }
 
   cbGpt.scrollTop = cbGpt.scrollHeight;

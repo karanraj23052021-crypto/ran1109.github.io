@@ -1,26 +1,21 @@
-// File: api/gpt.js
-
-export default async function handler(req, res) {
-  // 1. Cek Metode Request
+module.exports = async function(req, res) {
+  // Hanya izinkan POST
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed. Gunakan POST.' });
-  }
-
-  // 2. Ambil prompt dari frontend
-  const { prompt } = req.body;
-  if (!prompt) {
-    return res.status(400).json({ error: 'Prompt tidak boleh kosong.' });
-  }
-
-  // 3. Cek Kunci Rahasia
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    console.error("OPENAI_API_KEY belum diset di Vercel!");
-    return res.status(500).json({ error: 'Sistem belum siap. Kunci API OpenAI tidak ditemukan.' });
+    return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   try {
-    // 4. Tembak ke Server Resmi OpenAI
+    const prompt = req.body.prompt;
+    const apiKey = process.env.OPENAI_API_KEY;
+
+    if (!prompt) {
+      return res.status(400).json({ error: 'Prompt kosong' });
+    }
+
+    if (!apiKey) {
+      return res.status(500).json({ error: 'API Key OpenAI belum diset di Vercel!' });
+    }
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -28,27 +23,22 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo', // Bisa diganti 'gpt-4o-mini' kalau akunmu support
+        model: 'gpt-3.5-turbo',
         messages: [{ role: 'user', content: prompt }]
       })
     });
 
     const data = await response.json();
 
-    // 5. Cek apakah OpenAI menolak request
     if (!response.ok) {
-      console.error("OpenAI Error Detail:", data);
-      return res.status(response.status).json({ 
-        error: data.error?.message || 'Gagal mendapat balasan dari server OpenAI.' 
-      });
+      return res.status(response.status).json({ error: data.error?.message || 'OpenAI API Error' });
     }
 
-    // 6. Ekstrak jawaban dan kirim ke Frontend
-    const replyText = data.choices?.[0]?.message?.content || "Maaf, ChatGPT gagal memproses teks tersebut.";
+    const replyText = data.choices?.[0]?.message?.content || "Gagal membaca balasan.";
     return res.status(200).json({ reply: replyText });
 
   } catch (error) {
-    console.error("Server Catch Error:", error);
-    return res.status(500).json({ error: 'Terjadi masalah di server internal (Vercel).' });
+    // Tangkap error agar tidak bikin server crash total
+    return res.status(500).json({ error: error.message || 'Server Internal Error' });
   }
-}
+};
